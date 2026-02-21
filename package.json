@@ -1,0 +1,12 @@
+{
+  "name": "website-creation",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "serve": "node serve.mjs",
+    "screenshot": "node screenshot.mjs"
+  },
+  "dependencies": {
+    "puppeteer": "^24.37.5"
+  }
+}
