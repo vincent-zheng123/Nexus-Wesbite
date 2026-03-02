@@ -2666,30 +2666,8 @@
       if (el.id === 'sp-agent-type' || el.id === 'office-agent-type-label') el.textContent = agentType;
     });
 
-    // Seed demo metrics
-    const seed = session.username.split('').reduce((a,c)=>a+c.charCodeAt(0),0);
-    const calls = 120 + (seed % 80);
-    const tasks = 340 + (seed % 200);
-    const rate  = 92 + (seed % 8);
-    animateDashCounter(document.getElementById('m-calls'), calls);
-    animateDashCounter(document.getElementById('m-tasks'), tasks);
-    animateDashCounter(document.getElementById('m-rate'), rate, '%');
-
-    // Activity feed + timeline
-    const events = generateEvents(session);
-    renderOverviewFeed(events.slice(0,5));
-    renderTimeline(events);
-
-    // Office stats
-    const offTasks = 47 + (seed % 50);
-    const offCalls = 12 + (seed % 20);
-    const offEmails = 15 + (seed % 30);
-    const offRecords = 203 + (seed % 150);
-    animateDashCounter(document.getElementById('ostat-tasks'), offTasks);
-    animateDashCounter(document.getElementById('ostat-calls'), offCalls);
-    animateDashCounter(document.getElementById('ostat-emails'), offEmails);
-    animateDashCounter(document.getElementById('ostat-records'), offRecords);
-    renderOfficeFeed(events.slice(0, 5));
+    // Live metrics + activity from Supabase
+    loadOverviewStats();
 
     // Office agent icon (first letter)
     const iconEl = document.getElementById('office-agent-icon');
@@ -2719,6 +2697,38 @@
       el.textContent = Math.floor(cur) + (suffix||'');
       if (cur >= target) { el.textContent = target + (suffix||''); clearInterval(t); }
     }, 16);
+  }
+
+  const OUTCOME_COLOR = {
+    appointment_booked:    '#a78bfa',
+    callback_scheduled:    '#60a5fa',
+    information_provided:  '#2dd4bf',
+    no_answer:             '#f87171',
+    voicemail:             '#fbbf24',
+  };
+
+  async function loadOverviewStats() {
+    try {
+      const res = await fetch('/api/crm/overview');
+      if (!res.ok) return;
+      const data = await res.json();
+
+      animateDashCounter(document.getElementById('m-calls'),       data.calls);
+      animateDashCounter(document.getElementById('m-tasks'),       data.appointments);
+      animateDashCounter(document.getElementById('m-rate'),        data.rate, '%');
+      animateDashCounter(document.getElementById('ostat-calls'),   data.calls);
+      animateDashCounter(document.getElementById('ostat-tasks'),   data.appointments);
+
+      const events = (data.recentCalls || []).map(c => ({
+        color: OUTCOME_COLOR[c.outcome] || '#a855f7',
+        label: 'Call from ' + esc(c.callerName || c.callerPhone) + ' → ' + esc(c.businessName) + (c.outcome ? ' (' + c.outcome.replace(/_/g,' ') + ')' : ''),
+        time:  new Date(c.timestamp).getTime(),
+      }));
+
+      renderOverviewFeed(events.slice(0, 5));
+      renderTimeline(events);
+      renderOfficeFeed(events.slice(0, 5));
+    } catch (_) {}
   }
 
   function generateEvents(session) {
@@ -3165,10 +3175,11 @@
           <h4>Appointments (${c.appointments.length})</h4>
           ${c.appointments.length===0?'<p style="font-size:0.82rem;color:var(--muted)">No appointments yet.</p>':`
           <table class="crm-mini-table">
-            <tr><th>Caller</th><th>Status</th><th>Date</th></tr>
+            <tr><th>Caller</th><th>Status</th><th>Date</th>${c.industry?'<th>'+(c.industry==='DENTAL'?'Procedure':'Service')+'</th>':''}</tr>
             ${c.appointments.map(a=>{
               const ac=a.status.replace(/_/g,' ');
-              return `<tr><td>${esc(a.callerName||a.callerPhone)}</td><td style="font-size:0.75rem">${ac}</td><td style="font-size:0.75rem;color:var(--muted)">${new Date(a.scheduledAt).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</td></tr>`;
+              const typeLabel = a.appointmentType ? a.appointmentType.replace(/_/g,' ').replace(/\b\w/g,ch=>ch.toUpperCase()) : '—';
+              return `<tr><td>${esc(a.callerName||a.callerPhone)}</td><td style="font-size:0.75rem">${ac}</td><td style="font-size:0.75rem;color:var(--muted)">${new Date(a.scheduledAt).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</td>${c.industry?`<td style="font-size:0.75rem;color:#a78bfa">${typeLabel}</td>`:''}</tr>`;
             }).join('')}
           </table>`}
         </div>`;
