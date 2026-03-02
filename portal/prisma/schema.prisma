@@ -1,0 +1,279 @@
+generator client {
+  provider   = "prisma-client-js"
+  engineType = "library"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ─── Auth ────────────────────────────────────────────────────────────────────
+
+model User {
+  id           String   @id @default(cuid())
+  username     String   @unique
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  role         UserRole @default(CLIENT)
+  clientId     String?  @unique @map("client_id")
+  client       Client?  @relation(fields: [clientId], references: [id])
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+enum UserRole {
+  ADMIN
+  CLIENT
+}
+
+// ─── Core CRM ────────────────────────────────────────────────────────────────
+
+enum IndustryType {
+  DENTAL
+  ROOFING
+  HVAC
+}
+
+model Client {
+  id            String        @id @default(cuid())
+  businessName  String        @map("business_name")
+  contactName   String        @map("contact_name")
+  email         String        @unique
+  phone         String?
+  industry      IndustryType?
+  location      String?
+  plan          ClientPlan    @default(STARTER)
+  status        ClientStatus  @default(ACTIVE)
+  websiteUrl    String?       @map("website_url")
+  websiteStatus String?       @map("website_status")
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
+
+  user           User?
+  config         ClientConfig?
+  callLogs       CallLog[]
+  appointments   Appointment[]
+  followups      Followup[]
+  leads          Lead[]
+  automationRuns AutomationRun[]
+
+  @@map("clients")
+}
+
+enum ClientPlan {
+  STARTER
+  GROWTH
+  ENTERPRISE
+}
+
+enum ClientStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+model ClientConfig {
+  id                   String    @id @default(cuid())
+  clientId             String    @unique @map("client_id")
+  client               Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  businessName         String?   @map("business_name")
+  vapiPhoneNumber      String    @unique @map("vapi_phone_number")
+  vapiPhoneNumberId    String?   @map("vapi_phone_number_id")
+  vapiAssistantId      String?   @map("vapi_assistant_id")
+  calendarType         String    @default("google") @map("calendar_type")
+  calendarCredentialRef String?  @map("calendar_credential_ref")
+  calendarId           String?   @map("calendar_id")
+  calendarAccessToken  String?   @map("calendar_access_token")
+  calendarRefreshToken String?   @map("calendar_refresh_token")
+  calendarTokenExpiry  DateTime? @map("calendar_token_expiry")
+  businessHoursStart   String    @default("09:00") @map("business_hours_start")
+  businessHoursEnd     String    @default("17:00") @map("business_hours_end")
+  timezone             String    @default("America/New_York")
+  twilioFromNumber     String?   @map("twilio_from_number")
+  followupSmsTemplate  String?   @map("followup_sms_template")
+  nicheConfig          Json?     @map("niche_config")
+  active               Boolean   @default(true)
+  createdAt            DateTime  @default(now()) @map("created_at")
+  updatedAt            DateTime  @updatedAt @map("updated_at")
+
+  @@map("client_config")
+}
+
+// ─── Call Logs ───────────────────────────────────────────────────────────────
+
+model CallLog {
+  id              String      @id @default(cuid())
+  clientId        String      @map("client_id")
+  client          Client      @relation(fields: [clientId], references: [id])
+  callSid            String?     @map("call_sid")
+  callerName         String?     @map("caller_name")
+  callerPhone        String      @map("caller_phone")
+  durationSeconds    Int?        @map("duration_seconds")
+  outcome            CallOutcome
+  transcriptUrl      String?     @map("transcript_url")
+  qualificationData  Json?       @map("qualification_data")
+  timestamp          DateTime
+  createdAt          DateTime    @default(now()) @map("created_at")
+
+  followups          Followup[]
+  scheduledFollowups ScheduledFollowup[]
+
+  @@map("call_logs")
+}
+
+enum CallOutcome {
+  APPOINTMENT_BOOKED
+  CALLBACK_REQUESTED
+  NOT_INTERESTED
+  WRONG_NUMBER
+  VOICEMAIL
+  NO_ANSWER
+  NEW_LEAD
+  FAQ_HANDLED
+}
+
+// ─── Appointments ────────────────────────────────────────────────────────────
+
+model Appointment {
+  id              String            @id @default(cuid())
+  clientId        String            @map("client_id")
+  client          Client            @relation(fields: [clientId], references: [id])
+  callerName      String?           @map("caller_name")
+  callerPhone     String            @map("caller_phone")
+  scheduledAt     DateTime          @map("scheduled_at")
+  calendarEventId String?           @map("calendar_event_id")
+  calendarType    String?           @map("calendar_type")
+  appointmentType String?           @map("appointment_type")
+  status          AppointmentStatus @default(PENDING_CONFIRMATION)
+  reminderSent    Boolean           @default(false) @map("reminder_sent")
+  createdAt       DateTime          @default(now()) @map("created_at")
+  updatedAt       DateTime          @updatedAt @map("updated_at")
+
+  @@map("appointments")
+}
+
+enum AppointmentStatus {
+  PENDING_CONFIRMATION
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+// ─── Followups ───────────────────────────────────────────────────────────────
+
+model Followup {
+  id          String         @id @default(cuid())
+  clientId    String         @map("client_id")
+  client      Client         @relation(fields: [clientId], references: [id])
+  callLogId   String?        @map("call_log_id")
+  callLog     CallLog?       @relation(fields: [callLogId], references: [id])
+  channel     String         @default("sms")
+  messageBody String         @map("message_body")
+  sentAt      DateTime?      @map("sent_at")
+  status      FollowupStatus @default(PENDING)
+  twilioSid   String?        @map("twilio_sid")
+  createdAt   DateTime       @default(now()) @map("created_at")
+
+  @@map("followups")
+}
+
+enum FollowupStatus {
+  PENDING
+  SENT
+  DELIVERED
+  FAILED
+}
+
+// ─── Leads ───────────────────────────────────────────────────────────────────
+
+model Lead {
+  id            String     @id @default(cuid())
+  clientId      String     @map("client_id")
+  client        Client     @relation(fields: [clientId], references: [id])
+  businessName  String?    @map("business_name")
+  website       String?
+  contactName   String?    @map("contact_name")
+  contactEmail  String?    @map("contact_email")
+  contactPhone  String?    @map("contact_phone")
+  location      String?
+  industry      String?
+  sourceUrl     String?    @map("source_url")
+  source        String?
+  icpScore           Int?       @map("icp_score")
+  status             LeadStatus @default(NEW)
+  qualificationData  Json?      @map("qualification_data")
+  dateScraped        DateTime?  @map("date_scraped")
+  outreachStatus     String?    @map("outreach_status")
+  lastContacted      DateTime?  @map("last_contacted")
+  createdAt          DateTime   @default(now()) @map("created_at")
+  updatedAt          DateTime   @updatedAt @map("updated_at")
+
+  outreachAttempts   OutreachAttempt[]
+  scheduledFollowups ScheduledFollowup[]
+
+  @@map("leads")
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  FOLLOW_UP_1
+  FOLLOW_UP_2
+  SEQUENCE_COMPLETE
+  CONVERTED
+  NOT_QUALIFIED
+}
+
+// ─── Outreach ────────────────────────────────────────────────────────────────
+
+model OutreachAttempt {
+  id                String    @id @default(cuid())
+  leadId            String    @map("lead_id")
+  lead              Lead      @relation(fields: [leadId], references: [id])
+  subject           String?
+  body              String?
+  sentAt            DateTime? @map("sent_at")
+  status            String?
+  providerMessageId String?   @map("provider_message_id")
+  createdAt         DateTime  @default(now()) @map("created_at")
+
+  @@map("outreach_attempts")
+}
+
+model ScheduledFollowup {
+  id            String   @id @default(cuid())
+  leadId        String?  @map("lead_id")
+  lead          Lead?    @relation(fields: [leadId], references: [id])
+  callLogId     String?  @map("call_log_id")
+  callLog       CallLog? @relation(fields: [callLogId], references: [id])
+  clientId      String?  @map("client_id")
+  attemptNumber Int      @default(1) @map("attempt_number")
+  scheduledAt   DateTime @map("scheduled_at")
+  status        String   @default("pending")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  @@map("scheduled_followups")
+}
+
+// ─── Automation Runs ─────────────────────────────────────────────────────────
+
+model AutomationRun {
+  id           String    @id @default(cuid())
+  workflowName String    @map("workflow_name")
+  clientId     String?   @map("client_id")
+  client       Client?   @relation(fields: [clientId], references: [id])
+  status       String
+  startedAt    DateTime  @default(now()) @map("started_at")
+  completedAt  DateTime? @map("completed_at")
+  leadsScraped Int?      @map("leads_scraped")
+  emailsSent   Int?      @map("emails_sent")
+  errorMessage String?   @map("error_message")
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  @@map("automation_runs")
+}
