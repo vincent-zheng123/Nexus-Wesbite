@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { signOut } from "next-auth/react";
 import { Session } from "next-auth";
 import Link from "next/link";
@@ -83,24 +84,23 @@ const navItems: { label: string; href: string; icon: IconKey }[] = [
   { label: "Settings",      href: "/settings",     icon: "settings"      },
 ];
 
-export default function Sidebar({ session }: { session: Session }) {
-  const pathname = usePathname();
-  const user = session.user;
-  const initials = (user.name ?? "?")
-    .split(" ")
-    .map((w: string) => w[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
-
+// Shared inner content — used by both the mobile drawer and the desktop aside
+function SidebarInner({
+  user,
+  initials,
+  pathname,
+  onLinkClick,
+}: {
+  user: { name?: string | null; role?: string };
+  initials: string;
+  pathname: string;
+  onLinkClick?: () => void;
+}) {
   return (
-    <aside
-      className="w-64 flex-shrink-0 flex flex-col sticky top-0 h-screen border-r"
-      style={{ background: "#0d0a1a", borderColor: "rgba(168,85,247,0.15)" }}
-    >
-      {/* Logo — 3-ellipse orbital, matches index.html brand */}
+    <>
+      {/* Logo */}
       <div className="px-6 py-6 border-b" style={{ borderColor: "rgba(168,85,247,0.15)" }}>
-        <Link href="/dashboard" className="flex items-center gap-2.5">
+        <Link href="/dashboard" className="flex items-center gap-2.5" onClick={onLinkClick}>
           <svg width="28" height="28" viewBox="0 0 52 52" fill="none">
             <defs>
               <linearGradient id="nxsl" x1="0" y1="0" x2="1" y2="1">
@@ -151,6 +151,7 @@ export default function Sidebar({ session }: { session: Session }) {
             <Link
               key={item.href}
               href={item.href}
+              onClick={onLinkClick}
               className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
               style={{
                 background: active ? "rgba(124,58,237,0.2)" : "transparent",
@@ -170,6 +171,7 @@ export default function Sidebar({ session }: { session: Session }) {
           <>
             <Link
               href="/admin/clients"
+              onClick={onLinkClick}
               className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
               style={{
                 background: pathname.startsWith("/admin/clients") ? "rgba(124,58,237,0.2)" : "transparent",
@@ -182,6 +184,7 @@ export default function Sidebar({ session }: { session: Session }) {
             </Link>
             <Link
               href="/admin"
+              onClick={onLinkClick}
               className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
               style={{
                 background: pathname === "/admin" ? "rgba(124,58,237,0.2)" : "transparent",
@@ -213,6 +216,107 @@ export default function Sidebar({ session }: { session: Session }) {
           Sign Out
         </button>
       </div>
-    </aside>
+    </>
+  );
+}
+
+export default function Sidebar({ session }: { session: Session }) {
+  const pathname = usePathname();
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const user = session.user as { name?: string | null; role?: string };
+  const initials = (user.name ?? "?")
+    .split(" ")
+    .map((w: string) => w[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
+
+  return (
+    <>
+      {/* ── Mobile top bar (hidden on md+) ── */}
+      <div
+        className="flex md:hidden items-center justify-between px-4 py-3 sticky top-0 z-40 border-b"
+        style={{ background: "#0d0a1a", borderColor: "rgba(168,85,247,0.15)" }}
+      >
+        <Link href="/dashboard" className="flex items-center gap-2">
+          <svg width="24" height="24" viewBox="0 0 52 52" fill="none">
+            <defs>
+              <linearGradient id="nxsl-mob" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stopColor="#7c3aed"/>
+                <stop offset="100%" stopColor="#e879f9"/>
+              </linearGradient>
+            </defs>
+            <ellipse cx="26" cy="26" rx="21" ry="7" stroke="url(#nxsl-mob)" strokeWidth="1.6" fill="none"/>
+            <ellipse cx="26" cy="26" rx="21" ry="7" stroke="url(#nxsl-mob)" strokeWidth="1.6" fill="none" transform="rotate(60 26 26)" opacity=".75"/>
+            <ellipse cx="26" cy="26" rx="21" ry="7" stroke="#e879f9" strokeWidth="1.6" fill="none" transform="rotate(-60 26 26)" opacity=".6"/>
+            <circle cx="26" cy="26" r="6" fill="url(#nxsl-mob)"/>
+            <circle cx="26" cy="26" r="3" fill="#fff" opacity=".35"/>
+          </svg>
+          <span
+            className="text-base font-black tracking-widest"
+            style={{ fontFamily: "var(--font-orbitron)", background: "linear-gradient(135deg, #a855f7, #e879f9)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}
+          >
+            NEXUS
+          </span>
+        </Link>
+        <button
+          onClick={() => setMobileOpen(true)}
+          className="p-2 rounded-lg"
+          style={{ color: "#a78bfa" }}
+          aria-label="Open menu"
+        >
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <line x1="3" y1="12" x2="21" y2="12"/>
+            <line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      {/* ── Mobile overlay drawer ── */}
+      {mobileOpen && (
+        <div className="fixed inset-0 z-50 md:hidden flex">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() => setMobileOpen(false)}
+          />
+          {/* Drawer panel */}
+          <aside
+            className="relative w-72 flex flex-col h-full border-r overflow-y-auto"
+            style={{ background: "#0d0a1a", borderColor: "rgba(168,85,247,0.15)" }}
+          >
+            {/* Close button */}
+            <div className="flex justify-end px-4 py-3">
+              <button
+                onClick={() => setMobileOpen(false)}
+                className="p-1.5 rounded-lg"
+                style={{ color: "#a78bfa" }}
+                aria-label="Close menu"
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                  <line x1="18" y1="6" x2="6" y2="18"/>
+                  <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+              </button>
+            </div>
+            <SidebarInner
+              user={user}
+              initials={initials}
+              pathname={pathname}
+              onLinkClick={() => setMobileOpen(false)}
+            />
+          </aside>
+        </div>
+      )}
+
+      {/* ── Desktop sidebar (hidden on mobile) ── */}
+      <aside
+        className="hidden md:flex w-64 flex-shrink-0 flex-col sticky top-0 h-screen border-r"
+        style={{ background: "#0d0a1a", borderColor: "rgba(168,85,247,0.15)" }}
+      >
+        <SidebarInner user={user} initials={initials} pathname={pathname} />
+      </aside>
+    </>
   );
 }
