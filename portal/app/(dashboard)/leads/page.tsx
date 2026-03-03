@@ -47,9 +47,9 @@ export default async function LeadsPage() {
   return (
     <div className="p-8 max-w-full mx-auto">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold" style={{ fontFamily: "var(--font-space-grotesk)", color: "#f3f0ff" }}>Leads</h1>
+        <h1 className="text-2xl font-bold" style={{ fontFamily: "var(--font-space-grotesk)", color: "#f3f0ff" }}>Clients</h1>
         <p className="text-sm mt-1" style={{ color: "#a78bfa" }}>
-          Inbound leads captured by your AI receptionist
+          Customers captured by your AI receptionist
           {industryType && (
             <span className="ml-2 px-2 py-0.5 rounded-full text-xs font-medium" style={{ background: "rgba(168,85,247,0.15)", color: "#a78bfa" }}>
               {industryType.charAt(0) + industryType.slice(1).toLowerCase()}

@@ -77,7 +77,7 @@ const navItems: { label: string; href: string; icon: IconKey }[] = [
   { label: "Virtual Office",href: "/office",       icon: "office"        },
   { label: "Activity Log",  href: "/activity",     icon: "activity"      },
   { label: "Appointments",  href: "/appointments", icon: "appointments"  },
-  { label: "Leads",         href: "/leads",        icon: "leads"         },
+  { label: "Clients",       href: "/leads",        icon: "leads"         },
   { label: "Settings",      href: "/settings",     icon: "settings"      },
 ];
 
@@ -165,34 +165,19 @@ function SidebarInner({
         })}
 
         {user.role === "ADMIN" && (
-          <>
-            <Link
-              href="/admin/clients"
-              onClick={onLinkClick}
-              className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
-              style={{
-                background: pathname.startsWith("/admin/clients") ? "rgba(124,58,237,0.2)" : "transparent",
-                color: pathname.startsWith("/admin/clients") ? "#f3f0ff" : "#a78bfa",
-                border: pathname.startsWith("/admin/clients") ? "1px solid rgba(168,85,247,0.3)" : "1px solid transparent",
-              }}
-            >
-              <span className="flex-shrink-0" style={{ width: 17, height: 17 }}>{icons.clients}</span>
-              Clients
-            </Link>
-            <Link
-              href="/admin"
-              onClick={onLinkClick}
-              className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
-              style={{
-                background: pathname === "/admin" ? "rgba(124,58,237,0.2)" : "transparent",
-                color: pathname === "/admin" ? "#f3f0ff" : "#a78bfa",
-                border: pathname === "/admin" ? "1px solid rgba(168,85,247,0.3)" : "1px solid transparent",
-              }}
-            >
-              <span className="flex-shrink-0" style={{ width: 17, height: 17 }}>{icons.admin}</span>
-              Admin
-            </Link>
-          </>
+          <Link
+            href="/admin"
+            onClick={onLinkClick}
+            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
+            style={{
+              background: pathname.startsWith("/admin") ? "rgba(124,58,237,0.2)" : "transparent",
+              color: pathname.startsWith("/admin") ? "#f3f0ff" : "#a78bfa",
+              border: pathname.startsWith("/admin") ? "1px solid rgba(168,85,247,0.3)" : "1px solid transparent",
+            }}
+          >
+            <span className="flex-shrink-0" style={{ width: 17, height: 17 }}>{icons.admin}</span>
+            Admin
+          </Link>
         )}
       </nav>
 
