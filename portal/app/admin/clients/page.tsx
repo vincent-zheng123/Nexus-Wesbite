@@ -63,7 +63,7 @@ export default async function ClientsCRMPage({
   ];
 
   return (
-    <div className="p-8 max-w-7xl mx-auto">
+    <div className="p-4 md:p-8 max-w-7xl mx-auto">
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
@@ -91,7 +91,7 @@ export default async function ClientsCRMPage({
       </div>
 
       {/* Stats row */}
-      <div className="grid grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         {stats.map((s) => (
           <div
             key={s.label}
@@ -112,7 +112,7 @@ export default async function ClientsCRMPage({
       </div>
 
       {/* Filters */}
-      <form method="GET" className="flex gap-3 mb-6">
+      <form method="GET" className="flex flex-wrap gap-3 mb-6">
         <input
           name="q"
           defaultValue={q}
@@ -161,7 +161,7 @@ export default async function ClientsCRMPage({
 
       {/* Table */}
       <div
-        className="rounded-2xl border overflow-hidden"
+        className="rounded-2xl border overflow-x-auto"
         style={{ background: "#0d0a1a", borderColor: "rgba(168,85,247,0.18)" }}
       >
         {clients.length === 0 ? (

@@ -107,10 +107,10 @@ export default function VirtualOfficeClient({
   const stateLabel = STATE_LABELS[agentState];
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       {/* Header bar */}
       <div
-        className="flex items-center justify-between mb-5 px-5 py-4 rounded-2xl border"
+        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5 px-4 md:px-5 py-4 rounded-2xl border"
         style={{ background: "#0d0a1a", borderColor: "rgba(168,85,247,0.2)" }}
       >
         <div className="flex items-center gap-3.5">
@@ -156,7 +156,7 @@ export default function VirtualOfficeClient({
       </div>
 
       {/* Main layout */}
-      <div className="grid gap-5 mb-5" style={{ gridTemplateColumns: "minmax(0,1fr) 280px" }}>
+      <div className="grid gap-5 mb-5 grid-cols-1 md:grid-cols-[minmax(0,1fr)_280px]">
         {/* Room */}
         <div
           className="rounded-2xl overflow-hidden relative border"
@@ -488,7 +488,7 @@ export default function VirtualOfficeClient({
       </div>
 
       {/* Stats row */}
-      <div className="grid grid-cols-4 gap-3.5">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5">
         {[
           { val: callsTotal, label: "Total Calls" },
           { val: appointmentsTotal, label: "Appointments" },
