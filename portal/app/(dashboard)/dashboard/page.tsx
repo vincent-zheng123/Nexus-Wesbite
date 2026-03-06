@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import AgentStatusCard from "@/components/dashboard/AgentStatusCard";
 import { getEffectiveClientId } from "@/lib/getClientId";
+import { GlowingEffect } from "@/components/ui/glowing-effect";
 
 async function getStats(clientId: string) {
   const now = new Date();
@@ -93,9 +94,17 @@ export default async function DashboardPage() {
         {metrics.map((m) => (
           <div
             key={m.label}
-            className="rounded-2xl p-5 border"
+            className="relative rounded-2xl p-5 border"
             style={{ background: "#0d0a1a", borderColor: "rgba(168,85,247,0.18)", boxShadow: `0 0 20px ${m.color}18` }}
           >
+            <GlowingEffect
+              spread={40}
+              glow={true}
+              disabled={false}
+              proximity={64}
+              inactiveZone={0.01}
+              borderWidth={2}
+            />
             <p className="text-xs font-medium tracking-wide uppercase mb-3" style={{ color: "#a78bfa" }}>{m.label}</p>
             <p className="text-4xl font-black mb-1" style={{ fontFamily: "var(--font-orbitron)", background: `linear-gradient(135deg, ${m.color}, #e879f9)`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
               {m.value}

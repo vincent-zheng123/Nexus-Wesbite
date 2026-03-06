@@ -9,7 +9,7 @@ const require = createRequire(import.meta.url);
 const { Pool } = require('./node_modules/pg');
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const PORT = 3000;
+const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3002;
 
 // Load env vars from portal/.env
 function loadEnv() {
