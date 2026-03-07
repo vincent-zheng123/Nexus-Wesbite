@@ -10,7 +10,8 @@ export async function GET() {
   }
 
   const leads = await prisma.lead.findMany({
-    where: { clientId: null },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    where: { clientId: null as any },
     orderBy: { createdAt: "desc" },
     take: 200,
   });
