@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Nexus — Intelligent Solutions</title>
+  <title>Nexus</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 52 52'%3E%3Cellipse cx='26' cy='26' rx='21' ry='7' stroke='%23a855f7' stroke-width='2.5' fill='none'/%3E%3Cellipse cx='26' cy='26' rx='21' ry='7' stroke='%23a855f7' stroke-width='2.5' fill='none' transform='rotate(60 26 26)' opacity='.75'/%3E%3Cellipse cx='26' cy='26' rx='21' ry='7' stroke='%23e879f9' stroke-width='2.5' fill='none' transform='rotate(-60 26 26)' opacity='.65'/%3E%3Ccircle cx='5' cy='26' r='2.5' fill='%23a855f7' opacity='.85'/%3E%3Ccircle cx='47' cy='26' r='2.5' fill='%23a855f7' opacity='.85'/%3E%3Ccircle cx='26' cy='26' r='7' fill='%237c3aed'/%3E%3Ccircle cx='26' cy='26' r='3.5' fill='%23fff' opacity='.35'/%3E%3C/svg%3E" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -51,9 +51,12 @@
     }
     .brand {
       display:flex; align-items:center; gap:12px;
+      text-decoration:none;
+    }
+    .brand-text {
       font-family:'Orbitron', sans-serif;
-      font-size:1.35rem; font-weight:700; letter-spacing:0.04em;
-      background:linear-gradient(135deg,var(--mid),var(--accent));
+      font-size:1.35rem; font-weight:900; letter-spacing:-0.04em;
+      background:linear-gradient(135deg,#f3f0ff 0%,#a78bfa 60%,#e879f9 100%);
       -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
     }
     .nav-links { display:flex; align-items:center; gap:36px; list-style:none; }
@@ -111,7 +114,7 @@
     @keyframes floatB {
       0%,100%{transform:translate(0,0);} 50%{transform:translate(-30px,60px);}
     }
-    .hero-content { position:relative; z-index:2; max-width:1100px; width:100%; }
+    .hero-content { position:relative; z-index:2; max-width:1100px; width:100%; text-align:center; margin:0 auto; display:flex; flex-direction:column; align-items:center; }
     .hero-tag {
       display:inline-flex; align-items:center; gap:8px;
       padding:6px 18px; margin-bottom:32px;
@@ -125,7 +128,7 @@
     #hero h1 {
       font-size:clamp(3rem,5vw,4.5rem);
       font-weight:700; letter-spacing:-0.04em; line-height:1.08;
-      margin-bottom:28px;
+      margin-bottom:28px; text-align:center; width:100%;
     }
     h1 { font-weight:700; line-height:1.15; }
     .gradient-text {
@@ -837,7 +840,7 @@
         <circle cx="26" cy="26" r="3" fill="#fff" opacity="0.35"/>
       </g>
     </svg>
-    Nexus
+    <span class="brand-text">NEXUS</span>
   </div>
   <ul class="nav-links" id="nav-marketing-links">
     <li><a href="#services">Services</a></li>
@@ -847,7 +850,7 @@
   </ul>
   <div style="display:flex;align-items:center;gap:12px;">
     <a href="https://app.vincentbuildsai.cloud/login" class="btn-ghost" style="padding:9px 20px;font-size:0.86rem;">Log In</a>
-    <div class="btn-glow-wrap" style="border-radius:10px"><a href="#contact" class="btn-nav">Get Started</a></div>
+    <div class="btn-glow-wrap" style="border-radius:10px"><a href="start.html" class="btn-nav">Get Started</a></div>
   </div>
 </nav>
 
@@ -859,9 +862,9 @@
   <div class="hero-content">
     <div class="hero-tag"><span class="hero-tag-dot"></span> Next-generation AI infrastructure</div>
     <h1>Intelligence<br />that <span class="gradient-text">transforms</span><br />everything</h1>
-    <p class="hero-sub">We build bespoke AI systems that automate complexity, surface insight, and scale with your ambitions — from prototype to production.</p>
+    <p class="hero-sub">We build bespoke AI systems that automate complexity, surface insight, and scale with your ambitions, from prototype to production.</p>
     <div class="hero-actions">
-      <div class="btn-glow-wrap"><a href="#contact" class="btn-primary">Start a Project</a></div>
+      <div class="btn-glow-wrap"><a href="start.html" class="btn-primary">Start a Project</a></div>
       <div class="btn-glow-wrap"><a href="#cases" class="btn-ghost">See Our Work</a></div>
     </div>
     <div class="hero-stats">
@@ -903,7 +906,7 @@
     <div class="section-header reveal">
       <div class="section-label">What We Build</div>
       <h2>AI solutions for <span class="gradient-text">every frontier</span></h2>
-      <p class="section-sub">From intelligent automation to deep learning pipelines — we engineer systems that think, adapt, and deliver.</p>
+      <p class="section-sub">From intelligent automation to deep learning pipelines. We engineer systems that think, adapt, and deliver.</p>
     </div>
     <div class="services-grid">
       <div class="service-card-wrap glow-border reveal reveal-delay-1"><div class="service-card">
@@ -921,13 +924,13 @@
       <div class="service-card-wrap glow-border reveal reveal-delay-3"><div class="service-card">
         <div class="svc-icon"><svg viewBox="0 0 24 24" fill="none"><defs><linearGradient id="ig3" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#a855f7"/><stop offset="100%" stop-color="#e879f9"/></linearGradient></defs><line x1="4" y1="7" x2="12" y2="5" stroke="url(#ig3)" stroke-width="1" opacity="0.5"/><line x1="4" y1="12" x2="12" y2="5" stroke="url(#ig3)" stroke-width="1" opacity="0.5"/><line x1="4" y1="12" x2="12" y2="19" stroke="url(#ig3)" stroke-width="1" opacity="0.5"/><line x1="4" y1="17" x2="12" y2="19" stroke="url(#ig3)" stroke-width="1" opacity="0.5"/><line x1="12" y1="5" x2="20" y2="12" stroke="url(#ig3)" stroke-width="1.2" opacity="0.7"/><line x1="12" y1="19" x2="20" y2="12" stroke="url(#ig3)" stroke-width="1.2" opacity="0.7"/><circle cx="4" cy="7" r="2.5" fill="#0d0a1a" stroke="url(#ig3)" stroke-width="1.5"/><circle cx="4" cy="12" r="2.5" fill="#0d0a1a" stroke="url(#ig3)" stroke-width="1.5"/><circle cx="4" cy="17" r="2.5" fill="#0d0a1a" stroke="url(#ig3)" stroke-width="1.5"/><circle cx="12" cy="5" r="2.5" fill="#0d0a1a" stroke="url(#ig3)" stroke-width="1.5"/><circle cx="12" cy="19" r="2.5" fill="#0d0a1a" stroke="url(#ig3)" stroke-width="1.5"/><circle cx="20" cy="12" r="3" fill="url(#ig3)"/></svg></div>
         <h3>ML Integration</h3>
-        <p>Seamlessly embed machine learning into your existing stack — from model training to scalable inference APIs.</p>
+        <p>Seamlessly embed machine learning into your existing stack, from model training to scalable inference APIs.</p>
       </div></div>
 
       <div class="service-card-wrap glow-border reveal reveal-delay-4"><div class="service-card">
         <div class="svc-icon"><svg viewBox="0 0 24 24" fill="none"><defs><linearGradient id="ig4" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#a855f7"/><stop offset="100%" stop-color="#e879f9"/></linearGradient></defs><line x1="2" y1="12" x2="2" y2="12" stroke="url(#ig4)" stroke-width="2" stroke-linecap="round"/><line x1="4.5" y1="10" x2="4.5" y2="14" stroke="url(#ig4)" stroke-width="2" stroke-linecap="round"/><line x1="7" y1="7" x2="7" y2="17" stroke="url(#ig4)" stroke-width="2" stroke-linecap="round"/><line x1="9.5" y1="9" x2="9.5" y2="15" stroke="url(#ig4)" stroke-width="2" stroke-linecap="round"/><line x1="12" y1="5" x2="12" y2="19" stroke="#e879f9" stroke-width="2" stroke-linecap="round"/><line x1="14.5" y1="8" x2="14.5" y2="16" stroke="url(#ig4)" stroke-width="2" stroke-linecap="round"/><line x1="17" y1="6" x2="17" y2="18" stroke="url(#ig4)" stroke-width="2" stroke-linecap="round"/><line x1="19.5" y1="9" x2="19.5" y2="15" stroke="url(#ig4)" stroke-width="2" stroke-linecap="round"/><line x1="22" y1="10" x2="22" y2="14" stroke="url(#ig4)" stroke-width="2" stroke-linecap="round"/></svg></div>
         <h3>NLP Solutions</h3>
-        <p>Intelligent language systems — chatbots, document processing, sentiment analysis, and custom LLM fine-tuning.</p>
+        <p>Intelligent language systems: chatbots, document processing, sentiment analysis, and custom LLM fine-tuning.</p>
       </div></div>
 
       <div class="service-card-wrap glow-border reveal reveal-delay-5"><div class="service-card">
@@ -950,7 +953,7 @@
     <div class="section-header reveal">
       <div class="section-label">Case Studies</div>
       <h2>Results that <span class="gradient-text">speak clearly</span></h2>
-      <p class="section-sub">Real outcomes for real businesses — measurable, documented, repeatable.</p>
+      <p class="section-sub">Real outcomes for real businesses. Measurable, documented, repeatable.</p>
     </div>
     <div class="cases-grid">
       <div class="case-card glow-border reveal reveal-delay-1">
@@ -1034,7 +1037,7 @@
             <div class="gal-overlay"></div>
             <div class="gal-body">
               <div class="gal-stars">★★★★★</div>
-              <p class="gal-quote">"The fraud detection model they shipped caught $3.2M in fraudulent transactions in the first 90 days. Our security team calls it the best investment we've made — 8× ROI by the end of year one."</p>
+              <p class="gal-quote">"The fraud detection model they shipped caught $3.2M in fraudulent transactions in the first 90 days. Our security team calls it the best investment we've made. 8× ROI by the end of year one."</p>
               <div class="gal-name">Priya Sharma</div>
               <div class="gal-role">CEO · FinVault</div>
             </div>
@@ -1058,7 +1061,7 @@
             <div class="gal-overlay"></div>
             <div class="gal-body">
               <div class="gal-stars">★★★★★</div>
-              <p class="gal-quote">"We evaluated six firms. Nexus was the only one that asked hard questions before proposing solutions. They've become genuine strategic partners — not just a vendor running scripts."</p>
+              <p class="gal-quote">"We evaluated six firms. Nexus was the only one that asked hard questions before proposing solutions. They've become genuine strategic partners, not just a vendor running scripts."</p>
               <div class="gal-name">Anika Torres</div>
               <div class="gal-role">Head of AI · CloudScale</div>
             </div>
@@ -1107,7 +1110,7 @@
             Call logs & transcripts
           </li>
         </ul>
-        <a href="#contact" class="pricing-cta pricing-cta-outline">Get Started</a>
+        <a href="start.html" class="pricing-cta pricing-cta-outline">Get Started</a>
       </div>
 
       <!-- Growth (featured) -->
@@ -1143,7 +1146,7 @@
             Priority email support
           </li>
         </ul>
-        <a href="#contact" class="pricing-cta pricing-cta-fill">Get Started</a>
+        <a href="start.html" class="pricing-cta pricing-cta-fill">Get Started</a>
       </div>
 
       <!-- Pro -->
@@ -1174,7 +1177,7 @@
             Dedicated onboarding call
           </li>
         </ul>
-        <a href="#contact" class="pricing-cta pricing-cta-outline">Get Started</a>
+        <a href="start.html" class="pricing-cta pricing-cta-outline">Get Started</a>
       </div>
 
       <!-- Enterprise -->
@@ -1205,12 +1208,12 @@
             Dedicated account manager
           </li>
         </ul>
-        <a href="#contact" class="pricing-cta pricing-cta-outline">Talk to Sales</a>
+        <a href="start.html" class="pricing-cta pricing-cta-outline">Talk to Sales</a>
       </div>
 
     </div>
     <p class="pricing-overage reveal">
-      Exceed your monthly limit? <strong>$0.75 per extra call</strong> — no surprise bills, just a simple add-on.
+      Exceed your monthly limit? <strong>$0.75 per extra call</strong>. No surprise bills, just a simple add-on.
     </p>
   </div>
 </section>
@@ -1260,7 +1263,7 @@
       <circle cx="26" cy="26" r="6" fill="url(#ftG1)"/>
       <circle cx="26" cy="26" r="3" fill="#fff" opacity="0.35"/>
     </svg>
-    Nexus
+    <span class="brand-text">NEXUS</span>
   </div>
   <p>© 2026 Nexus. All rights reserved.</p>
   <ul class="footer-links">

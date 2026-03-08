@@ -112,8 +112,8 @@ function SidebarInner({
             <circle cx="26" cy="26" r="3" fill="#fff" opacity=".35"/>
           </svg>
           <span
-            className="text-lg font-black tracking-widest"
-            style={{ fontFamily: "var(--font-orbitron)", background: "linear-gradient(135deg, #a855f7, #e879f9)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}
+            className="text-lg font-black"
+            style={{ fontFamily: "var(--font-orbitron)", letterSpacing: "-0.04em", background: "linear-gradient(135deg, #f3f0ff 0%, #a78bfa 60%, #e879f9 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}
           >
             NEXUS
           </span>
@@ -250,8 +250,8 @@ export default function Sidebar({ session }: { session: Session }) {
             <circle cx="26" cy="26" r="3" fill="#fff" opacity=".35"/>
           </svg>
           <span
-            className="text-base font-black tracking-widest"
-            style={{ fontFamily: "var(--font-orbitron)", background: "linear-gradient(135deg, #a855f7, #e879f9)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}
+            className="text-base font-black"
+            style={{ fontFamily: "var(--font-orbitron)", letterSpacing: "-0.04em", background: "linear-gradient(135deg, #f3f0ff 0%, #a78bfa 60%, #e879f9 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}
           >
             NEXUS
           </span>

@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Start a Project | Nexus</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 52 52'%3E%3Cellipse cx='26' cy='26' rx='21' ry='7' stroke='%23a855f7' stroke-width='2.5' fill='none'/%3E%3Cellipse cx='26' cy='26' rx='21' ry='7' stroke='%23a855f7' stroke-width='2.5' fill='none' transform='rotate(60 26 26)' opacity='.75'/%3E%3Cellipse cx='26' cy='26' rx='21' ry='7' stroke='%23e879f9' stroke-width='2.5' fill='none' transform='rotate(-60 26 26)' opacity='.65'/%3E%3Ccircle cx='5' cy='26' r='2.5' fill='%23a855f7' opacity='.85'/%3E%3Ccircle cx='47' cy='26' r='2.5' fill='%23a855f7' opacity='.85'/%3E%3Ccircle cx='26' cy='26' r='7' fill='%237c3aed'/%3E%3Ccircle cx='26' cy='26' r='3.5' fill='%23fff' opacity='.35'/%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:      #06040f;
+      --surface: #0d0a1a;
+      --surface2: #110e1f;
+      --primary: #7c3aed;
+      --mid:     #a855f7;
+      --accent:  #e879f9;
+      --text:    #f3f0ff;
+      --muted:   #a78bfa;
+      --subtle:  #6b6b80;
+      --border:  rgba(168,85,247,0.2);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      line-height: 1.75;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Grain overlay */
+    body::after {
+      content:''; position:fixed; inset:0; pointer-events:none; z-index:200;
+      opacity:0.025;
+      background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size: 200px 200px;
+    }
+
+    /* ── Full-screen two-column layout ── */
+    .split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      min-height: 100vh;
+    }
+
+    /* ─── LEFT PANEL ─── */
+    .left-panel {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 48px 56px;
+      background: var(--surface);
+      border-right: 1px solid rgba(168,85,247,0.12);
+      overflow: hidden;
+    }
+
+    /* Ambient glows inside left panel */
+    .left-panel::before {
+      content: '';
+      position: absolute;
+      top: -20%;
+      left: -20%;
+      width: 70%;
+      height: 70%;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(124,58,237,0.3) 0%, transparent 70%);
+      filter: blur(80px);
+      pointer-events: none;
+    }
+    .left-panel::after {
+      content: '';
+      position: absolute;
+      bottom: -10%;
+      right: -10%;
+      width: 55%;
+      height: 55%;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(232,121,249,0.18) 0%, transparent 70%);
+      filter: blur(80px);
+      pointer-events: none;
+    }
+
+    /* Subtle grid pattern */
+    .left-grid {
+      position: absolute;
+      inset: 0;
+      opacity: 0.04;
+      background-image:
+        linear-gradient(to right, #a855f7 1px, transparent 1px),
+        linear-gradient(to bottom, #a855f7 1px, transparent 1px);
+      background-size: 48px 48px;
+      pointer-events: none;
+    }
+
+    /* Nav inside left panel */
+    .panel-nav {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: auto;
+      padding-bottom: 48px;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .brand-text {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.2rem; font-weight: 900; letter-spacing: -0.04em;
+      background: linear-gradient(135deg, #f3f0ff 0%, #a78bfa 60%, #e879f9 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .back-link {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.82rem; font-weight: 500;
+      color: var(--subtle); text-decoration: none;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: var(--muted); }
+    .back-link svg { transition: transform 0.2s; }
+    .back-link:hover svg { transform: translateX(-3px); }
+
+    /* Left panel main content */
+    .left-content {
+      position: relative;
+      z-index: 1;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding-bottom: 48px;
+    }
+    .panel-label {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 5px 14px; margin-bottom: 28px;
+      background: rgba(124,58,237,0.12); border: 1px solid rgba(168,85,247,0.25);
+      border-radius: 100px; font-size: 0.7rem; font-weight: 700;
+      color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase;
+      width: fit-content;
+    }
+    .label-dot {
+      width: 5px; height: 5px; border-radius: 50%;
+      background: var(--accent);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:0.4;transform:scale(0.7);} }
+
+    .panel-heading {
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(2rem, 3.2vw, 3rem);
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      line-height: 1.08;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, #f3f0ff 0%, #a78bfa 55%, #e879f9 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .panel-sub {
+      font-size: 0.95rem;
+      color: var(--muted);
+      line-height: 1.75;
+      max-width: 380px;
+      margin-bottom: 48px;
+    }
+
+    /* Steps */
+    .steps { display: flex; flex-direction: column; gap: 20px; }
+    .step {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+    }
+    .step-num {
+      flex-shrink: 0;
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: rgba(124,58,237,0.15);
+      border: 1px solid rgba(168,85,247,0.3);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.65rem; font-weight: 900;
+      color: var(--mid);
+      margin-top: 2px;
+    }
+    .step-body {}
+    .step-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.88rem; font-weight: 700;
+      color: var(--text);
+      margin-bottom: 3px;
+    }
+    .step-desc {
+      font-size: 0.8rem;
+      color: var(--subtle);
+      line-height: 1.6;
+    }
+
+    /* Left panel footer */
+    .panel-footer {
+      position: relative;
+      z-index: 1;
+      padding-top: 32px;
+      border-top: 1px solid rgba(168,85,247,0.1);
+    }
+    .trust-badges {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .badge {
+      display: flex; align-items: center; gap: 7px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.75rem; font-weight: 600;
+      color: var(--subtle);
+    }
+    .badge svg { color: var(--mid); flex-shrink: 0; }
+
+    /* ─── RIGHT PANEL ─── */
+    .right-panel {
+      padding: 56px 56px 56px 48px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .form-header {
+      margin-bottom: 32px;
+    }
+    .form-eyebrow {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.72rem; font-weight: 700;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--subtle);
+      margin-bottom: 10px;
+    }
+    .form-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.5rem; font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.02em;
+      margin-bottom: 6px;
+    }
+    .form-subtitle {
+      font-size: 0.88rem;
+      color: var(--subtle);
+    }
+
+    /* Form sections */
+    .form-section { margin-bottom: 28px; }
+    .section-heading {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.68rem; font-weight: 700;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--subtle);
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(168,85,247,0.1);
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .form-row.single { grid-template-columns: 1fr; }
+    .form-group { display: flex; flex-direction: column; gap: 7px; }
+    label {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.75rem; font-weight: 600;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+    }
+    input, select, textarea {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(168,85,247,0.18);
+      border-radius: 10px;
+      padding: 11px 14px;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.88rem;
+      outline: none;
+      width: 100%;
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+      -webkit-appearance: none;
+    }
+    input::placeholder, textarea::placeholder { color: rgba(107,107,128,0.7); }
+    input:focus, select:focus, textarea:focus {
+      border-color: rgba(168,85,247,0.55);
+      box-shadow: 0 0 0 3px rgba(124,58,237,0.1);
+      background: rgba(124,58,237,0.04);
+    }
+    select { cursor: pointer; }
+    select option { background: #0d0a1a; color: var(--text); }
+    textarea { resize: vertical; min-height: 100px; line-height: 1.65; }
+
+    /* Service checkboxes */
+    .service-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .service-item {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 12px 14px;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(168,85,247,0.15);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      position: relative;
+    }
+    .service-item:hover {
+      border-color: rgba(168,85,247,0.35);
+      background: rgba(124,58,237,0.06);
+    }
+    .service-item input[type="checkbox"] {
+      flex-shrink: 0; margin-top: 2px;
+      width: 15px; height: 15px;
+      accent-color: var(--primary);
+      cursor: pointer;
+      padding: 0; border: none; background: none;
+      box-shadow: none;
+    }
+    .service-item input:focus { box-shadow: none; border-color: transparent; background: transparent; }
+    .service-item .service-label { font-size: 0.8rem; font-weight: 500; color: var(--text); font-family: 'Space Grotesk', sans-serif; line-height: 1.4; }
+    .service-item .service-desc { font-size: 0.72rem; color: var(--subtle); margin-top: 2px; }
+
+    /* Submit area */
+    .submit-area {
+      margin-top: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .submit-note {
+      font-size: 0.77rem;
+      color: var(--subtle);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .submit-note svg { color: var(--mid); flex-shrink: 0; }
+    .btn-submit {
+      padding: 13px 32px;
+      background: linear-gradient(135deg, #7c3aed, #a855f7);
+      color: #fff; border: none; border-radius: 10px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.9rem; font-weight: 700;
+      cursor: pointer; letter-spacing: 0.02em;
+      box-shadow: 0 0 24px rgba(124,58,237,0.45);
+      transition: box-shadow 0.2s, transform 0.15s, background 0.2s;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .btn-submit:hover {
+      box-shadow: 0 0 40px rgba(168,85,247,0.65);
+      transform: translateY(-1px);
+      background: linear-gradient(135deg, #8b47f0, #b668fa);
+    }
+    .btn-submit:active { transform: translateY(0); }
+    .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    /* ── Success state ── */
+    .success-wrap {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      min-height: 100vh;
+      padding: 56px;
+    }
+    .success-wrap.visible { display: flex; }
+    .success-icon {
+      width: 80px; height: 80px; border-radius: 50%;
+      background: linear-gradient(135deg, #7c3aed, #e879f9);
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 32px;
+      box-shadow: 0 0 60px rgba(124,58,237,0.45);
+    }
+    .success-icon svg { width: 36px; height: 36px; }
+    .success-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.8rem; font-weight: 900; letter-spacing: -0.04em;
+      background: linear-gradient(135deg, #f3f0ff 0%, #a78bfa 55%, #e879f9 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      margin-bottom: 14px;
+    }
+    .success-body {
+      font-size: 0.95rem; color: var(--muted);
+      max-width: 380px; line-height: 1.75; margin-bottom: 36px;
+    }
+    .btn-back {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 11px 24px;
+      border: 1px solid rgba(168,85,247,0.3); border-radius: 10px;
+      color: var(--muted); text-decoration: none;
+      font-family: 'Space Grotesk', sans-serif; font-size: 0.88rem; font-weight: 500;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .btn-back:hover { border-color: var(--mid); color: var(--text); }
+
+    /* Mobile */
+    @media (max-width: 900px) {
+      .split { grid-template-columns: 1fr; }
+      .left-panel {
+        position: static; height: auto;
+        padding: 36px 28px 40px;
+      }
+      .left-panel::before, .left-panel::after { display: none; }
+      .left-content { padding-bottom: 0; }
+      .panel-heading { font-size: 1.8rem; }
+      .steps { display: none; }
+      .right-panel { padding: 40px 28px 56px; justify-content: flex-start; min-height: auto; }
+      .form-row { grid-template-columns: 1fr; }
+      .service-grid { grid-template-columns: 1fr; }
+      .submit-area { flex-direction: column-reverse; align-items: stretch; }
+      .btn-submit { width: 100%; justify-content: center; }
+      .success-wrap { padding: 40px 28px; min-height: auto; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="split">
+
+  <!-- ─── LEFT PANEL ─── -->
+  <div class="left-panel">
+    <div class="left-grid"></div>
+
+    <div class="panel-nav">
+      <a href="index.html" class="brand">
+        <svg width="28" height="28" viewBox="0 0 52 52" fill="none">
+          <defs>
+            <linearGradient id="lg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#7c3aed"/><stop offset="100%" stop-color="#e879f9"/></linearGradient>
+            <filter id="lglow"><feGaussianBlur stdDeviation="1.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          </defs>
+          <g filter="url(#lglow)">
+            <ellipse cx="26" cy="26" rx="21" ry="7" stroke="url(#lg1)" stroke-width="1.6" fill="none"/>
+            <ellipse cx="26" cy="26" rx="21" ry="7" stroke="url(#lg1)" stroke-width="1.6" fill="none" transform="rotate(60 26 26)" opacity="0.75"/>
+            <ellipse cx="26" cy="26" rx="21" ry="7" stroke="#e879f9" stroke-width="1.6" fill="none" transform="rotate(-60 26 26)" opacity="0.6"/>
+            <circle cx="5" cy="26" r="2.2" fill="#a855f7" opacity="0.85"/>
+            <circle cx="47" cy="26" r="2.2" fill="#a855f7" opacity="0.85"/>
+            <circle cx="26" cy="26" r="6" fill="url(#lg1)"/>
+            <circle cx="26" cy="26" r="3" fill="#fff" opacity="0.35"/>
+          </g>
+        </svg>
+        <span class="brand-text">NEXUS</span>
+      </a>
+      <a href="index.html" class="back-link">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+        Back
+      </a>
+    </div>
+
+    <div class="left-content">
+      <div class="panel-label"><span class="label-dot"></span> New Project Intake</div>
+      <h1 class="panel-heading">Let's build<br/>something<br/>remarkable.</h1>
+      <p class="panel-sub">Tell us about your business. We'll review your submission and reach out within one business day with a tailored plan.</p>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">01</div>
+          <div class="step-body">
+            <div class="step-title">Submit your request</div>
+            <div class="step-desc">Fill out the form with your business details and what you're looking to automate or build.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">02</div>
+          <div class="step-body">
+            <div class="step-title">Discovery call</div>
+            <div class="step-desc">We schedule a 20-minute call to understand your workflow, call volume, and goals in detail.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">03</div>
+          <div class="step-body">
+            <div class="step-title">Go live in days</div>
+            <div class="step-desc">Your AI receptionist is configured, tested, and live — handling calls on day one.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel-footer">
+      <div class="trust-badges">
+        <div class="badge">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          No commitment
+        </div>
+        <div class="badge">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Reply in 24 hrs
+        </div>
+        <div class="badge">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Free consultation
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── RIGHT PANEL ─── -->
+  <div class="right-panel" id="right-panel">
+
+    <div id="form-wrap">
+      <div class="form-header">
+        <div class="form-eyebrow">Project Intake Form</div>
+        <div class="form-title">Tell us about your business</div>
+        <div class="form-subtitle">All fields marked * are required.</div>
+      </div>
+
+      <form id="intake-form" novalidate>
+
+        <!-- Your Info -->
+        <div class="form-section">
+          <div class="section-heading">Your Information</div>
+          <div class="form-row" style="margin-bottom:14px">
+            <div class="form-group">
+              <label for="fname">First Name *</label>
+              <input type="text" id="fname" name="fname" placeholder="John" required />
+            </div>
+            <div class="form-group">
+              <label for="lname">Last Name *</label>
+              <input type="text" id="lname" name="lname" placeholder="Smith" required />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="email">Email Address *</label>
+              <input type="email" id="email" name="email" placeholder="john@company.com" required />
+            </div>
+            <div class="form-group">
+              <label for="phone">Phone Number</label>
+              <input type="tel" id="phone" name="phone" placeholder="+1 (555) 000-0000" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Business Details -->
+        <div class="form-section">
+          <div class="section-heading">Business Details</div>
+          <div class="form-row" style="margin-bottom:14px">
+            <div class="form-group">
+              <label for="biz-name">Business Name *</label>
+              <input type="text" id="biz-name" name="biz_name" placeholder="Acme Dental Group" required />
+            </div>
+            <div class="form-group">
+              <label for="industry">Industry *</label>
+              <select id="industry" name="industry" required>
+                <option value="" disabled selected>Select industry</option>
+                <option value="dental">Dental</option>
+                <option value="medical">Medical / Healthcare</option>
+                <option value="legal">Legal</option>
+                <option value="plumbing">Plumbing</option>
+                <option value="hvac">HVAC</option>
+                <option value="salon_spa">Salon / Spa</option>
+                <option value="auto_repair">Auto Repair</option>
+                <option value="veterinary">Veterinary</option>
+                <option value="roofing">Roofing</option>
+                <option value="real_estate">Real Estate</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="location">Location</label>
+              <input type="text" id="location" name="location" placeholder="City, State" />
+            </div>
+            <div class="form-group">
+              <label for="call-volume">Monthly Call Volume</label>
+              <select id="call-volume" name="call_volume">
+                <option value="" disabled selected>Estimate</option>
+                <option value="under_100">Under 100 / month</option>
+                <option value="100_300">100–300 / month</option>
+                <option value="300_600">300–600 / month</option>
+                <option value="600_plus">600+ / month</option>
+                <option value="unsure">Not sure</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Services -->
+        <div class="form-section">
+          <div class="section-heading">What do you need?</div>
+          <div class="service-grid">
+            <label class="service-item">
+              <input type="checkbox" name="service" value="ai_receptionist" />
+              <div>
+                <div class="service-label">AI Receptionist</div>
+                <div class="service-desc">Inbound calls, booking, SMS follow-ups</div>
+              </div>
+            </label>
+            <label class="service-item">
+              <input type="checkbox" name="service" value="web_design" />
+              <div>
+                <div class="service-label">Website Design</div>
+                <div class="service-desc">Built and hosted for your business</div>
+              </div>
+            </label>
+            <label class="service-item">
+              <input type="checkbox" name="service" value="both" />
+              <div>
+                <div class="service-label">Full Package</div>
+                <div class="service-desc">AI receptionist + new website</div>
+              </div>
+            </label>
+            <label class="service-item">
+              <input type="checkbox" name="service" value="unsure" />
+              <div>
+                <div class="service-label">Not sure yet</div>
+                <div class="service-desc">I want to learn more first</div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Message -->
+        <div class="form-section" style="margin-bottom:0">
+          <div class="section-heading">Anything else?</div>
+          <div class="form-group">
+            <label for="message">Additional Details</label>
+            <textarea id="message" name="message" placeholder="Current setup, specific challenges, anything you want us to know..."></textarea>
+          </div>
+        </div>
+
+        <div class="submit-area">
+          <div class="submit-note">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            We'll respond within 1 business day.
+          </div>
+          <button type="submit" class="btn-submit" id="submit-btn">
+            Submit Request
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+        </div>
+
+      </form>
+    </div>
+
+    <!-- Success -->
+    <div class="success-wrap" id="success-panel">
+      <div class="success-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+      </div>
+      <div class="success-title">Request Received</div>
+      <p class="success-body">Thanks for reaching out. We'll review your project details and get back to you within one business day with a tailored plan.</p>
+      <a href="index.html" class="btn-back">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+        Back to Home
+      </a>
+    </div>
+
+  </div><!-- /right-panel -->
+
+</div><!-- /split -->
+
+<script>
+  const form = document.getElementById('intake-form');
+  const formWrap = document.getElementById('form-wrap');
+  const successPanel = document.getElementById('success-panel');
+  const submitBtn = document.getElementById('submit-btn');
+
+  const requiredFields = [
+    { id: 'fname', label: 'First Name' },
+    { id: 'lname', label: 'Last Name' },
+    { id: 'email', label: 'Email Address' },
+    { id: 'biz-name', label: 'Business Name' },
+    { id: 'industry', label: 'Industry' },
+  ];
+
+  function setError(el, hasError) {
+    el.style.borderColor = hasError ? 'rgba(239,68,68,0.55)' : '';
+    el.style.boxShadow = hasError ? '0 0 0 3px rgba(239,68,68,0.1)' : '';
+    if (hasError) {
+      el.addEventListener('input', function clear() {
+        el.style.borderColor = '';
+        el.style.boxShadow = '';
+        el.removeEventListener('input', clear);
+      });
+    }
+  }
+
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    let valid = true;
+    requiredFields.forEach(function(f) {
+      const el = document.getElementById(f.id);
+      if (!el.value.trim()) { setError(el, true); valid = false; }
+    });
+    if (!valid) return;
+
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = 'Submitting…';
+
+    setTimeout(function() {
+      formWrap.style.display = 'none';
+      successPanel.classList.add('visible');
+    }, 800);
+  });
+</script>
+
+</body>
+</html>
