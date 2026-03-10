@@ -37,7 +37,7 @@ export default async function AdminLeadsPage({
   const statusFilter = searchParams.status ?? "";
 
   const allLeads = await prisma.lead.findMany({
-    where: { clientId: null },
+    where: { clientId: { equals: null } },
     orderBy: { createdAt: "desc" },
     take: 200,
     select: {
