@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 
 /**
@@ -59,23 +60,21 @@ export async function POST(req: Request) {
   const contactName = [first_name, last_name].filter(Boolean).join(" ");
 
   // Store lead — clientId is null for NEXUS's own intake leads
-  await prisma.lead.create({
-    data: {
-      clientId: undefined,
-      contactName,
-      contactEmail: email,
-      contactPhone: normalizedPhone,
-      businessName: business_name,
-      industry,
-      location: location ?? null,
-      source: "nexus_website",
-      qualificationData: {
-        monthly_volume: monthly_volume ?? null,
-        service_type: service_type ?? null,
-        notes: notes ?? null,
-      },
+  const leadData: Prisma.LeadUncheckedCreateInput = {
+    contactName,
+    contactEmail: email,
+    contactPhone: normalizedPhone,
+    businessName: business_name,
+    industry,
+    location: location ?? null,
+    source: "nexus_website",
+    qualificationData: {
+      monthly_volume: monthly_volume ?? null,
+      service_type: service_type ?? null,
+      notes: notes ?? null,
     },
-  });
+  };
+  await prisma.lead.create({ data: leadData });
 
   // Fire n8n nexus-sales-callback workflow (non-blocking)
   const n8nWebhookUrl = process.env.N8N_NEXUS_SALES_WEBHOOK_URL;
