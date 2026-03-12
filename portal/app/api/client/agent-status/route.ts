@@ -28,13 +28,12 @@ export async function GET() {
   try {
     const vapiBase = process.env.VAPI_BASE_URL ?? "https://api.vapi.ai";
     const res = await fetch(
-      `${vapiBase}/call?assistantId=${config.vapiAssistantId}&status=in-progress&limit=1`,
+      `${vapiBase}/call?assistantId=${config.vapiAssistantId}&limit=10`,
       {
         headers: {
           Authorization: `Bearer ${apiKey}`,
           "Content-Type": "application/json",
         },
-        // Don't cache — this needs to be live
         cache: "no-store",
       }
     );
@@ -44,7 +43,8 @@ export async function GET() {
     }
 
     const data = await res.json();
-    const activeCalls = Array.isArray(data) ? data : (data.results ?? []);
+    const calls: { status?: string }[] = Array.isArray(data) ? data : (data.results ?? []);
+    const activeCalls = calls.filter((c) => c.status === "in-progress" || c.status === "ringing");
     const status: AgentStatus = activeCalls.length > 0 ? "busy" : "idle";
     return NextResponse.json({ status });
   } catch {
