@@ -156,22 +156,13 @@ export async function POST(req: Request) {
     },
   });
 
-  // 5. If appointment booked — create appointment record
-  if (outcome === "APPOINTMENT_BOOKED" && structured.appointmentTime) {
-    const scheduledAt = new Date(structured.appointmentTime);
-    if (!isNaN(scheduledAt.getTime())) {
-      await prisma.appointment.create({
-        data: {
-          clientId,
-          callerName,
-          callerPhone: fromNumber,
-          scheduledAt,
-          calendarType: config.calendarType,
-          appointmentType: appointmentType ?? undefined,
-          status: "PENDING_CONFIRMATION",
-        },
-      });
-    }
+  // 5. Appointment records are created mid-call by the bookAppointment tool (status: CONFIRMED,
+  //    with calendar_event_id). No duplicate creation here — just update appointmentType if set.
+  if (outcome === "APPOINTMENT_BOOKED" && appointmentType) {
+    await prisma.appointment.updateMany({
+      where: { clientId, callerPhone: fromNumber, status: "CONFIRMED" },
+      data: { appointmentType },
+    });
   }
 
   // 6. Send SMS follow-up if template configured
