@@ -67,11 +67,25 @@ export const DENTAL_FIELDS: NicheField[] = [
 
 export const ROOFING_FIELDS: NicheField[] = [
   {
-    key: "address",
-    label: "Property Address",
+    key: "city",
+    label: "City",
     type: "string",
-    description: "Full address of the property that needs roofing work",
-    askPrompt: "What's the address of the property we'd be looking at?",
+    description: "City of the property that needs roofing work",
+    askPrompt: "What city is the property in?",
+  },
+  {
+    key: "state",
+    label: "State",
+    type: "string",
+    description: "State abbreviation of the property (e.g. MA, CA)",
+    askPrompt: "And what state?",
+  },
+  {
+    key: "zip",
+    label: "ZIP Code",
+    type: "string",
+    description: "ZIP code of the property",
+    askPrompt: "What's the ZIP code?",
   },
   {
     key: "propertyType",
@@ -117,11 +131,25 @@ export const ROOFING_FIELDS: NicheField[] = [
 
 export const HVAC_FIELDS: NicheField[] = [
   {
-    key: "address",
-    label: "Service Address",
+    key: "city",
+    label: "City",
     type: "string",
-    description: "Full address where HVAC service is needed",
-    askPrompt: "What's the service address?",
+    description: "City where HVAC service is needed",
+    askPrompt: "What city is the service location in?",
+  },
+  {
+    key: "state",
+    label: "State",
+    type: "string",
+    description: "State abbreviation (e.g. MA, CA)",
+    askPrompt: "And what state?",
+  },
+  {
+    key: "zip",
+    label: "ZIP Code",
+    type: "string",
+    description: "ZIP code of the service location",
+    askPrompt: "What's the ZIP code?",
   },
   {
     key: "serviceType",
@@ -228,11 +256,25 @@ export const LEGAL_FIELDS: NicheField[] = [
 
 export const PLUMBING_FIELDS: NicheField[] = [
   {
-    key: "address",
-    label: "Service Address",
+    key: "city",
+    label: "City",
     type: "string",
-    description: "Full address where plumbing service is needed",
-    askPrompt: "What's the service address?",
+    description: "City where plumbing service is needed",
+    askPrompt: "What city is the service location in?",
+  },
+  {
+    key: "state",
+    label: "State",
+    type: "string",
+    description: "State abbreviation (e.g. MA, CA)",
+    askPrompt: "And what state?",
+  },
+  {
+    key: "zip",
+    label: "ZIP Code",
+    type: "string",
+    description: "ZIP code of the service location",
+    askPrompt: "What's the ZIP code?",
   },
   {
     key: "serviceType",
