@@ -20,7 +20,7 @@ export default async function AppointmentsPage() {
   const clientId = await getEffectiveClientId(user);
   if (!clientId) redirect("/admin");
 
-  const [appointments, clientRow] = await Promise.all([
+  const [appointments, clientRow, configRow] = await Promise.all([
     prisma.appointment.findMany({
       where: { clientId },
       orderBy: { scheduledAt: "desc" },
@@ -30,8 +30,13 @@ export default async function AppointmentsPage() {
       where: { id: clientId },
       select: { industry: true },
     }),
+    prisma.clientConfig.findUnique({
+      where: { clientId },
+      select: { timezone: true },
+    }),
   ]);
   const industry = clientRow?.industry ?? null;
+  const tz = configRow?.timezone ?? "America/New_York";
 
   const upcoming = appointments.filter((a) => a.scheduledAt >= new Date() && ["PENDING_CONFIRMATION", "CONFIRMED"].includes(a.status));
   const past = appointments.filter((a) => !upcoming.includes(a));
@@ -48,10 +53,10 @@ export default async function AppointmentsPage() {
           <p className="text-xs" style={{ color: "#6b6b80" }}>{appt.callerPhone}</p>
         </td>
         <td className="px-5 py-3.5" style={{ color: "#a78bfa" }}>
-          {appt.scheduledAt.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" })}
+          {appt.scheduledAt.toLocaleDateString("en-US", { timeZone: tz, weekday: "short", month: "short", day: "numeric", year: "numeric" })}
         </td>
         <td className="px-5 py-3.5" style={{ color: "#a78bfa" }}>
-          {appt.scheduledAt.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}
+          {appt.scheduledAt.toLocaleTimeString("en-US", { timeZone: tz, hour: "numeric", minute: "2-digit" })}
         </td>
         {industry && (
           <td className="px-5 py-3.5 text-xs" style={{ color: appt.appointmentType ? "#f3f0ff" : "#3a3a50" }}>

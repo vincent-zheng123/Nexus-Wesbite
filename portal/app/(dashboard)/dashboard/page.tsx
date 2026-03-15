@@ -61,7 +61,11 @@ export default async function DashboardPage() {
   const clientId = await getEffectiveClientId(user);
   if (!clientId) redirect("/admin");
 
-  const stats = await getStats(clientId);
+  const [stats, configRow] = await Promise.all([
+    getStats(clientId),
+    prisma.clientConfig.findUnique({ where: { clientId }, select: { timezone: true } }),
+  ]);
+  const tz = configRow?.timezone ?? "America/New_York";
 
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
@@ -155,8 +159,8 @@ export default async function DashboardPage() {
                   <div>
                     <p className="text-sm font-medium" style={{ color: "#f3f0ff" }}>{appt.callerName ?? appt.callerPhone}</p>
                     <p className="text-xs" style={{ color: "#6b6b80" }}>
-                      {appt.scheduledAt.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })} ·{" "}
-                      {appt.scheduledAt.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}
+                      {appt.scheduledAt.toLocaleDateString("en-US", { timeZone: tz, weekday: "short", month: "short", day: "numeric" })} ·{" "}
+                      {appt.scheduledAt.toLocaleTimeString("en-US", { timeZone: tz, hour: "numeric", minute: "2-digit" })}
                     </p>
                   </div>
                   <span className="text-xs px-2.5 py-1 rounded-full font-medium" style={{ background: "rgba(168,85,247,0.15)", color: "#a855f7" }}>
