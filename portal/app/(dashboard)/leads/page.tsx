@@ -144,7 +144,7 @@ export default async function LeadsPage() {
     take: 100,
   });
 
-  const staticHeaders = ["Name", "Phone", "Source", "Status", "Date"];
+  const staticHeaders = ["Name", "Phone", "Source", "Stage", "Date"];
   const nicheHeaders = nicheFields.map((f) => f.label);
 
   return (
@@ -203,7 +203,7 @@ export default async function LeadsPage() {
                     <td className="px-5 py-3.5 text-xs" style={{ color: "#6b6b80" }}>{lead.source ?? "—"}</td>
                     <td className="px-5 py-3.5">
                       <span className="text-xs px-2.5 py-1 rounded-full font-medium whitespace-nowrap" style={{ background: `${color}18`, color }}>
-                        {lead.status.replace(/_/g, " ").toLowerCase()}
+                        {lead.status === "CONVERTED" ? "in pipeline" : lead.status === "BOOKED" ? "booked" : lead.status.replace(/_/g, " ").toLowerCase()}
                       </span>
                     </td>
                     <td className="px-5 py-3.5 text-xs whitespace-nowrap" style={{ color: "#6b6b80" }}>
