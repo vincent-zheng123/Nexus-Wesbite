@@ -75,8 +75,10 @@ export default function VirtualOfficeClient({
   const [outfit, setOutfit] = useState(0);
   const [customizerOpen, setCustomizerOpen] = useState(false);
   const [timer, setTimer] = useState<string>("—");
+  const [lastChecked, setLastChecked] = useState<string>("—");
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const startRef = useRef<number | null>(null);
+  const prevStateRef = useRef<AgentState>("idle");
 
   // Timer for active states
   useEffect(() => {
@@ -95,6 +97,34 @@ export default function VirtualOfficeClient({
     }
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
   }, [agentState]);
+
+  // Real-time status polling
+  useEffect(() => {
+    let mounted = true;
+
+    const poll = async () => {
+      try {
+        const res = await fetch("/api/office/status", { cache: "no-store" });
+        if (!res.ok || !mounted) return;
+        const { state } = await res.json() as { state: AgentState };
+        if (!mounted) return;
+
+        setLastChecked(new Date().toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", second: "2-digit" }));
+
+        // Only override to idle if we're not in a real active state from the API
+        if (state !== prevStateRef.current) {
+          prevStateRef.current = state;
+          setAgentState(state);
+        }
+      } catch {
+        // Network error — keep current state
+      }
+    };
+
+    poll();
+    const interval = setInterval(poll, 5000);
+    return () => { mounted = false; clearInterval(interval); };
+  }, []);
 
   const skinTop = SKIN_TONES[skin].top;
   const skinBot = SKIN_TONES[skin].bot;
@@ -443,23 +473,15 @@ export default function VirtualOfficeClient({
               <span className="font-bold text-xl" style={{ fontFamily: "var(--font-space-grotesk)", color: "#f3f0ff", letterSpacing: "0.05em" }}>{timer}</span>
             </div>
             <div style={{ height: 1, background: "rgba(168,85,247,0.2)", margin: "16px 0" }}/>
-            <p className="text-xs font-semibold mb-2" style={{ color: "#a78bfa", letterSpacing: "0.03em" }}>Simulate Activity</p>
-            {(["idle", "call", "processing", "email"] as AgentState[]).map((s) => (
-              <button
-                key={s}
-                onClick={() => setAgentState(s)}
-                className="flex items-center gap-2.5 w-full px-3.5 py-2.5 rounded-xl mb-2 text-xs font-semibold border transition-all"
-                style={{
-                  background: agentState === s ? "rgba(168,85,247,0.12)" : "rgba(124,58,237,0.06)",
-                  borderColor: agentState === s ? STATE_COLORS[s] : "rgba(168,85,247,0.2)",
-                  color: agentState === s ? "#f3f0ff" : "#a78bfa",
-                  fontFamily: "var(--font-space-grotesk)",
-                }}
-              >
-                <span className="inline-block w-2 h-2 rounded-full flex-shrink-0" style={{ background: STATE_COLORS[s] }}/>
-                {STATE_LABELS[s]}
-              </button>
-            ))}
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold" style={{ color: "#a78bfa", letterSpacing: "0.03em" }}>Live Monitoring</span>
+              <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs border" style={{ color: "#4ade80", borderColor: "rgba(74,222,128,0.25)", background: "rgba(74,222,128,0.07)" }}>
+                <span className="inline-block w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: "currentColor" }}/>
+                Active
+              </span>
+            </div>
+            <p className="text-xs mt-2" style={{ color: "#6b6b80" }}>Updated: {lastChecked}</p>
+            <p className="text-xs mt-1" style={{ color: "#6b6b80" }}>Polls every 5 seconds · auto-updates on call activity, SMS sends, and post-call processing</p>
           </div>
 
           {/* Live feed */}
