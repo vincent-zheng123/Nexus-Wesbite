@@ -76,6 +76,7 @@ const navItems: { label: string; href: string; icon: IconKey }[] = [
   { label: "Overview",      href: "/dashboard",    icon: "overview"      },
   { label: "Virtual Office",href: "/office",       icon: "office"        },
   { label: "Activity Log",  href: "/activity",     icon: "activity"      },
+  { label: "Call Log",      href: "/calls",        icon: "calls"         },
   { label: "Appointments",  href: "/appointments", icon: "appointments"  },
   { label: "Calendar",      href: "/calendar",     icon: "appointments"  },
   { label: "Clients",       href: "/leads",        icon: "leads"         },
