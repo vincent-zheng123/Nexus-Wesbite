@@ -3,6 +3,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { PLAN_LIMITS, billingMonthStart } from "@/lib/plan-limits";
 
 const statusLabel: Record<string, string> = {
   ACTIVE: "Active",
@@ -19,6 +20,7 @@ const statusColor: Record<string, string> = {
 const planColor: Record<string, string> = {
   STARTER: "#38bdf8",
   GROWTH: "#fbbf24",
+  PRO: "#f97316",
   ENTERPRISE: "#a855f7",
 };
 
@@ -34,10 +36,23 @@ export default async function ClientsCRMPage({
   const q = searchParams.q?.toLowerCase() ?? "";
   const statusFilter = searchParams.status ?? "";
 
-  const allClients = await prisma.client.findMany({
-    include: { config: true, _count: { select: { callLogs: true, appointments: true } } },
-    orderBy: { createdAt: "desc" },
-  });
+  const monthStart = billingMonthStart();
+
+  const [allClients, usageRows] = await Promise.all([
+    prisma.client.findMany({
+      include: { config: true, _count: { select: { callLogs: true, appointments: true } } },
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.callLog.groupBy({
+      by: ["clientId"],
+      where: { createdAt: { gte: monthStart } },
+      _sum: { durationSeconds: true },
+    }),
+  ]);
+
+  const usageMap = new Map(
+    usageRows.map((r) => [r.clientId, r._sum.durationSeconds ?? 0])
+  );
 
   const clients = allClients.filter((c) => {
     const matchesStatus = statusFilter ? c.status === statusFilter : true;
@@ -175,7 +190,7 @@ export default async function ClientsCRMPage({
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b" style={{ borderColor: "rgba(168,85,247,0.15)" }}>
-                {["Business", "Contact", "Phone", "Plan", "Status", "Calls", "Appts", "Since", ""].map((h) => (
+                {["Business", "Contact", "Phone", "Plan / Usage", "Status", "Calls", "Appts", "Since", ""].map((h) => (
                   <th
                     key={h}
                     className="text-left px-5 py-3.5 text-xs font-medium tracking-wide uppercase"
@@ -190,6 +205,16 @@ export default async function ClientsCRMPage({
               {clients.map((client) => {
                 const sc = statusColor[client.status] ?? "#a78bfa";
                 const pc = planColor[client.plan] ?? "#a78bfa";
+                const usedSeconds = usageMap.get(client.id) ?? 0;
+                const planKey = (client.plan ?? "STARTER") as keyof typeof PLAN_LIMITS;
+                const limitSeconds = PLAN_LIMITS[planKey]?.seconds ?? PLAN_LIMITS.STARTER.seconds;
+                const isUnlimited = !isFinite(limitSeconds);
+                const pct = isUnlimited ? 0 : Math.min((usedSeconds / limitSeconds) * 100, 100);
+                const usedHrs = (usedSeconds / 3600).toFixed(1);
+                const limitHrs = isUnlimited ? null : (limitSeconds / 3600).toFixed(0);
+                const barColor = pct >= 100 ? "#f87171" : pct >= 80 ? "#fbbf24" : pc;
+                const capHit = client.config?.active === false && client.status === "ACTIVE";
+
                 return (
                   <tr
                     key={client.id}
@@ -213,13 +238,29 @@ export default async function ClientsCRMPage({
                     <td className="px-5 py-3.5 text-xs font-mono" style={{ color: "#6b6b80" }}>
                       {client.phone ?? "—"}
                     </td>
-                    <td className="px-5 py-3.5">
-                      <span
-                        className="text-xs px-2 py-0.5 rounded-full font-medium"
-                        style={{ background: `${pc}18`, color: pc }}
-                      >
-                        {client.plan}
-                      </span>
+                    <td className="px-5 py-3.5" style={{ minWidth: 160 }}>
+                      <div className="flex items-center gap-1.5 mb-1.5">
+                        <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background: `${pc}18`, color: pc }}>
+                          {client.plan}
+                        </span>
+                        {capHit && (
+                          <span className="text-xs px-1.5 py-0.5 rounded font-bold" style={{ background: "rgba(248,113,113,0.15)", color: "#f87171" }}>
+                            CAP
+                          </span>
+                        )}
+                      </div>
+                      {isUnlimited ? (
+                        <p className="text-xs" style={{ color: "#4ade80" }}>Unlimited</p>
+                      ) : (
+                        <>
+                          <div className="w-full h-1.5 rounded-full overflow-hidden mb-1" style={{ background: "rgba(168,85,247,0.12)" }}>
+                            <div className="h-full rounded-full" style={{ width: `${pct}%`, background: barColor }} />
+                          </div>
+                          <p className="text-xs" style={{ color: "#6b6b80" }}>
+                            {usedHrs} / {limitHrs} hrs ({pct.toFixed(0)}%)
+                          </p>
+                        </>
+                      )}
                     </td>
                     <td className="px-5 py-3.5">
                       <span
