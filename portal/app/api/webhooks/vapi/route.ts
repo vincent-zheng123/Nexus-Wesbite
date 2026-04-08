@@ -101,8 +101,18 @@ export async function POST(req: Request) {
   const clientId = config.clientId;
 
   // 2. Parse call metadata
-  const startedAt = call.startedAt ? new Date(call.startedAt) : new Date();
-  const endedAt = call.endedAt ? new Date(call.endedAt) : new Date();
+  // Vapi puts startedAt/endedAt on the message level in end-of-call-report,
+  // not inside the call object. Fall back to call-level fields for older payloads.
+  const startedAt = message.startedAt
+    ? new Date(message.startedAt as string)
+    : call.startedAt
+    ? new Date(call.startedAt)
+    : new Date();
+  const endedAt = message.endedAt
+    ? new Date(message.endedAt as string)
+    : call.endedAt
+    ? new Date(call.endedAt)
+    : new Date();
   const durationSeconds = Math.round((endedAt.getTime() - startedAt.getTime()) / 1000);
 
   // Vapi puts structuredDataSchema results in message.artifact.structuredData
