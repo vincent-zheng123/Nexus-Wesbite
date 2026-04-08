@@ -36,8 +36,8 @@ function Footer() {
     },
     {
       icon: <Globe size={16} className="text-[#a855f7]" />,
-      text: "vincentbuildsai.cloud",
-      href: "https://vincentbuildsai.cloud",
+      text: "callavoma.com",
+      href: "https://callavoma.com",
     },
     {
       icon: <MapPin size={16} className="text-[#a855f7]" />,

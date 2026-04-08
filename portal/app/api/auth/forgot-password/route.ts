@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      from: "AVOMA <noreply@vincentbuildsai.cloud>",
+      from: "AVOMA <noreply@callavoma.com>",
       to: [user.email],
       subject: "Reset your AVOMA portal password",
       html: `

@@ -152,7 +152,7 @@ export default function LoginPage() {
 
           <p className="text-center text-xs mt-6" style={{ color: "#6b6b80" }}>
             Don&apos;t have access?{" "}
-            <a href="https://vincentbuildsai.cloud/#contact" className="underline" style={{ color: "#a855f7" }}>
+            <a href="https://callavoma.com/#contact" className="underline" style={{ color: "#a855f7" }}>
               Contact us
             </a>
           </p>

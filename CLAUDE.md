@@ -11,7 +11,7 @@
 ## What This Folder Contains
 
 This folder contains two things:
-1. **The AVOMA public-facing brand website** — the marketing site live at **vincentbuildsai.cloud** that prospects and clients land on
+1. **The AVOMA public-facing brand website** — the marketing site live at **callavoma.com** that prospects and clients land on
 2. **The client CRM dashboard** — the Next.js portal where clients log in to view their AI receptionist activity
 
 > **This folder is separate from `AVOMA_CL_WEBSITE/`** which contains websites built *for* clients. Never mix AVOMA brand files with client deliverable files.

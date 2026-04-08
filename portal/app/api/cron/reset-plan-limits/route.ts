@@ -14,7 +14,7 @@ import { relinkVapiPhone } from "@/lib/vapi-client";
  *   Trigger: Schedule (0 0 1 * *)
  *   Node: HTTP Request
  *     Method: POST
- *     URL: https://app.vincentbuildsai.cloud/api/cron/reset-plan-limits
+ *     URL: https://app.callavoma.com/api/cron/reset-plan-limits
  *     Header: x-cron-secret: {{ $env.CRON_SECRET }}
  */
 export async function POST(req: Request) {

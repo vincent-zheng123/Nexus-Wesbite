@@ -6,7 +6,7 @@ export async function GET(req: NextRequest) {
   const code = searchParams.get("code");
   const state = searchParams.get("state");
   const error = searchParams.get("error");
-  const base = process.env.NEXTAUTH_URL ?? "https://app.vincentbuildsai.cloud";
+  const base = process.env.NEXTAUTH_URL ?? "https://app.callavoma.com";
 
   if (error || !code || !state) {
     return NextResponse.redirect(`${base}/integrations?gcal=error`);

@@ -799,7 +799,7 @@
         notes:          document.getElementById('message').value.trim(),
       };
 
-      await fetch('https://app.vincentbuildsai.cloud/api/webhooks/avoma-intake', {
+      await fetch('https://app.callavoma.com/api/webhooks/avoma-intake', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
