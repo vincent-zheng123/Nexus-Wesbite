@@ -105,6 +105,14 @@ export async function POST(req: Request) {
   const callerName: string | null = structured.callerName ?? null;
   const transcriptUrl: string | null = call.recordingUrl ?? null;
 
+  // Full plain-text transcript from Vapi (stored for legal record-keeping)
+  const transcriptText: string | null =
+    (message.artifact?.transcript as string | undefined) ??
+    ((message.artifact?.messages as Array<{ role: string; message: string }> | undefined)
+      ?.map((m) => `${m.role}: ${m.message}`)
+      .join("\n") ?? null) ??
+    null;
+
   // Extract niche-specific intel — everything except the 3 core fields
   const coreKeys = new Set(["outcome", "callerName", "appointmentTime"]);
   const nicheIntel = Object.fromEntries(
@@ -160,6 +168,7 @@ export async function POST(req: Request) {
       durationSeconds,
       outcome: outcome as import("@prisma/client").CallOutcome,
       transcriptUrl,
+      transcript: transcriptText,
       qualificationData: qualificationData ?? undefined,
       timestamp: startedAt,
     },
@@ -295,12 +304,6 @@ export async function POST(req: Request) {
   const n8nWebhookUrl = process.env.N8N_INBOUND_LEAD_CAPTURE_URL ??
     "http://76.13.111.46:32771/webhook/inbound-lead-capture";
 
-  const transcript: string =
-    (message.artifact?.transcript as string) ??
-    (message.artifact?.messages as Array<{role:string;message:string}>|undefined)
-      ?.map((m) => `${m.role}: ${m.message}`)
-      .join("\n") ?? "";
-
   fetch(n8nWebhookUrl, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -308,7 +311,7 @@ export async function POST(req: Request) {
       clientId,
       callerPhone: fromNumber,
       callerName: callerName ?? "",
-      transcript,
+      transcript: transcriptText ?? "",
       qualificationData: qualificationData ?? {},
       clientConfig: {
         client_id: config.clientId,

@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { getNicheDisplayFields } from "@/lib/niches";
 import type { Prisma } from "@prisma/client";
 import { getEffectiveClientIdFromRequest } from "@/lib/getClientId";
+import { TranscriptToggle } from "./TranscriptRow";
 
 function outcomeColor(outcome: string) {
   const map: Record<string, string> = {
@@ -40,7 +41,18 @@ export default async function CallsPage() {
   const calls = await prisma.callLog.findMany({
     where: { clientId },
     orderBy: { timestamp: "desc" },
-    take: 50,
+    take: 100,
+    select: {
+      id: true,
+      callerName: true,
+      callerPhone: true,
+      timestamp: true,
+      durationSeconds: true,
+      outcome: true,
+      transcriptUrl: true,
+      transcript: true,
+      qualificationData: true,
+    },
   });
 
   return (
@@ -60,7 +72,7 @@ export default async function CallsPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b" style={{ borderColor: "rgba(168,85,247,0.15)" }}>
-                {["Caller", "Date & Time", "Duration", "Outcome", ...nicheFields.map((f) => f.label), ""].map((h) => (
+                {["Caller", "Date & Time", "Duration", "Outcome", ...nicheFields.map((f) => f.label), "Transcript"].map((h) => (
                   <th key={h} className="text-left px-5 py-3.5 text-xs font-medium tracking-wide uppercase whitespace-nowrap" style={{ color: "#6b6b80" }}>
                     {h}
                   </th>
@@ -100,12 +112,11 @@ export default async function CallsPage() {
                       );
                     })}
 
-                    <td className="px-5 py-3.5">
-                      {call.transcriptUrl && (
-                        <a href={call.transcriptUrl} target="_blank" rel="noopener noreferrer" className="text-xs underline" style={{ color: "#a855f7" }}>
-                          Transcript
-                        </a>
-                      )}
+                    <td className="px-5 py-3.5 min-w-[160px] max-w-[400px]">
+                      <TranscriptToggle
+                        transcript={call.transcript ?? null}
+                        transcriptUrl={call.transcriptUrl ?? null}
+                      />
                     </td>
                   </tr>
                 );

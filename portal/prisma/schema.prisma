@@ -143,6 +143,7 @@ model CallLog {
   durationSeconds    Int?        @map("duration_seconds")
   outcome            CallOutcome
   transcriptUrl      String?     @map("transcript_url")
+  transcript         String?
   qualificationData  Json?       @map("qualification_data")
   timestamp          DateTime
   createdAt          DateTime    @default(now()) @map("created_at")
