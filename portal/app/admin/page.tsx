@@ -48,7 +48,7 @@ export default async function AdminPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b" style={{ borderColor: "rgba(168,85,247,0.15)" }}>
-                {["Business", "Contact", "Plan", "Status", "AI Phone", "Active"].map((h) => (
+                {["Business", "Contact", "Plan", "Status", "AI Phone", "Active", ""].map((h) => (
                   <th key={h} className="text-left px-5 py-3.5 text-xs font-medium tracking-wide uppercase" style={{ color: "#6b6b80" }}>{h}</th>
                 ))}
               </tr>
@@ -57,10 +57,16 @@ export default async function AdminPage() {
               {clients.map((client) => {
                 const color = statusColor[client.status] ?? "#a78bfa";
                 return (
-                  <tr key={client.id} className="border-b last:border-0" style={{ borderColor: "rgba(168,85,247,0.08)" }}>
+                  <tr
+                    key={client.id}
+                    className="border-b last:border-0"
+                    style={{ borderColor: "rgba(168,85,247,0.08)" }}
+                  >
                     <td className="px-5 py-3.5">
-                      <p className="font-medium" style={{ color: "#f3f0ff" }}>{client.businessName}</p>
-                      <p className="text-xs" style={{ color: "#6b6b80" }}>{client.industry ?? "—"}</p>
+                      <Link href={`/admin/clients/${client.id}`} className="block hover:opacity-80">
+                        <p className="font-medium" style={{ color: "#f3f0ff" }}>{client.businessName}</p>
+                        <p className="text-xs" style={{ color: "#6b6b80" }}>{client.industry ?? "—"}</p>
+                      </Link>
                     </td>
                     <td className="px-5 py-3.5">
                       <p style={{ color: "#a78bfa" }}>{client.contactName}</p>
@@ -76,7 +82,16 @@ export default async function AdminPage() {
                       {client.config?.vapiPhoneNumber ?? "—"}
                     </td>
                     <td className="px-5 py-3.5">
-                      <span className={`inline-block w-2 h-2 rounded-full`} style={{ background: client.config?.active ? "#4ade80" : "#6b6b80" }} />
+                      <span className="inline-block w-2 h-2 rounded-full" style={{ background: client.config?.active ? "#4ade80" : "#6b6b80" }} />
+                    </td>
+                    <td className="px-5 py-3.5">
+                      <Link
+                        href={`/admin/clients/${client.id}`}
+                        className="text-xs font-semibold px-3 py-1.5 rounded-lg"
+                        style={{ background: "rgba(124,58,237,0.15)", color: "#a78bfa", border: "1px solid rgba(168,85,247,0.25)" }}
+                      >
+                        View →
+                      </Link>
                     </td>
                   </tr>
                 );
