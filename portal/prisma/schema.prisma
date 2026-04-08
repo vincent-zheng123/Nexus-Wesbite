@@ -83,6 +83,7 @@ model Client {
 enum ClientPlan {
   STARTER
   GROWTH
+  PRO
   ENTERPRISE
 }
 
@@ -113,6 +114,7 @@ model ClientConfig {
   followupSmsTemplate  String?   @map("followup_sms_template")
   nicheConfig          Json?     @map("niche_config")
   active               Boolean   @default(true)
+  planCapOverride      Boolean   @default(false) @map("plan_cap_override")
   createdAt            DateTime  @default(now()) @map("created_at")
   updatedAt            DateTime  @updatedAt @map("updated_at")
 

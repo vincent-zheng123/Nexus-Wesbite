@@ -2,7 +2,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
-import { getEffectiveClientId } from "@/lib/getClientId";
+import { getEffectiveClientIdFromRequest } from "@/lib/getClientId";
 
 const statusColor: Record<string, string> = {
   PENDING_CONFIRMATION: "#fbbf24",
@@ -17,7 +17,7 @@ export default async function AppointmentsPage() {
   if (!session) redirect("/login");
 
   const user = session.user;
-  const clientId = await getEffectiveClientId(user);
+  const clientId = await getEffectiveClientIdFromRequest(user);
   if (!clientId) redirect("/admin");
 
   const [appointments, clientRow, configRow] = await Promise.all([

@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { getNicheDisplayFields } from "@/lib/niches";
 import type { Prisma } from "@prisma/client";
-import { getEffectiveClientId } from "@/lib/getClientId";
+import { getEffectiveClientIdFromRequest } from "@/lib/getClientId";
 
 function outcomeColor(outcome: string) {
   const map: Record<string, string> = {
@@ -25,7 +25,7 @@ export default async function CallsPage() {
   if (!session) redirect("/login");
 
   const user = session.user;
-  const clientId = await getEffectiveClientId(user);
+  const clientId = await getEffectiveClientIdFromRequest(user);
   if (!clientId) redirect("/admin");
 
   // Fetch client to get industryType for niche field rendering

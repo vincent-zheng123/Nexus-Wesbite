@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { getNicheDisplayFields } from "@/lib/niches";
 import type { Prisma } from "@prisma/client";
-import { getEffectiveClientId } from "@/lib/getClientId";
+import { getEffectiveClientIdFromRequest } from "@/lib/getClientId";
 import { LeadStatusBadge } from "./LeadStatusBadge";
 
 
@@ -119,7 +119,7 @@ export default async function LeadsPage() {
   }
 
   // ── Client view: show leads captured by their AI receptionist ──────────────
-  const clientId = await getEffectiveClientId(user);
+  const clientId = await getEffectiveClientIdFromRequest(user);
   if (!clientId) redirect("/admin");
 
   const client = await prisma.client.findUnique({

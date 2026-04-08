@@ -74,6 +74,8 @@ export default function ClientDetailPage() {
   const [error, setError] = useState("");
   const [calConnected, setCalConnected] = useState(false);
   const [calendarId, setCalendarId] = useState("");
+  const [usage, setUsage] = useState<{ usedSeconds: number; limitSeconds: number | null; plan: string } | null>(null);
+  const [overageLoading, setOverageLoading] = useState(false);
 
   useEffect(() => {
     fetch(`/api/admin/clients/${id}/detail`)
@@ -88,7 +90,25 @@ export default function ClientDetailPage() {
       })
       .catch(() => setError("Failed to load client."))
       .finally(() => setLoading(false));
+
+    fetch(`/api/admin/clients/${id}/usage`)
+      .then((r) => r.json())
+      .then((data) => { if (!data.error) setUsage(data); })
+      .catch(() => {});
   }, [id]);
+
+  async function approveOverage() {
+    setOverageLoading(true);
+    await fetch(`/api/admin/clients/${id}/approve-overage`, { method: "POST" });
+    // Refresh client + usage
+    const [clientRes, usageRes] = await Promise.all([
+      fetch(`/api/admin/clients/${id}/detail`).then((r) => r.json()),
+      fetch(`/api/admin/clients/${id}/usage`).then((r) => r.json()),
+    ]);
+    if (!clientRes.error) setClient(clientRes);
+    if (!usageRes.error) setUsage(usageRes);
+    setOverageLoading(false);
+  }
 
   async function updateStatus(status: string) {
     if (!client) return;
@@ -290,6 +310,76 @@ export default function ClientDetailPage() {
           ))}
         </div>
       </div>
+
+      {/* Monthly Usage Bar */}
+      {usage && (
+        <div
+          className="rounded-2xl border p-5 mb-6"
+          style={{
+            background: "#0d0a1a",
+            borderColor: client.config?.active === false && client.status === "ACTIVE"
+              ? "rgba(248,113,113,0.35)"
+              : "rgba(168,85,247,0.18)",
+          }}
+        >
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-widest" style={{ color: "#a78bfa" }}>
+                Monthly Usage · {usage.plan}
+              </p>
+              <p className="text-xs mt-0.5" style={{ color: "#6b6b80" }}>
+                Resets 1st of each month · Billing period is calendar month UTC
+              </p>
+            </div>
+            {client.config?.active === false && client.status === "ACTIVE" && (
+              <div className="flex items-center gap-2">
+                <span
+                  className="text-xs px-2.5 py-1 rounded-full font-semibold border"
+                  style={{ color: "#f87171", borderColor: "rgba(248,113,113,0.3)", background: "rgba(248,113,113,0.08)" }}
+                >
+                  Cap Reached · Calls routing to fallback
+                </span>
+                <button
+                  onClick={approveOverage}
+                  disabled={overageLoading}
+                  className="text-xs font-semibold px-3 py-1.5 rounded-xl border transition-all"
+                  style={{
+                    background: overageLoading ? "rgba(168,85,247,0.06)" : "rgba(168,85,247,0.12)",
+                    borderColor: "rgba(168,85,247,0.4)",
+                    color: "#f3f0ff",
+                    cursor: overageLoading ? "not-allowed" : "pointer",
+                  }}
+                >
+                  {overageLoading ? "Enabling…" : "Approve Overage"}
+                </button>
+              </div>
+            )}
+          </div>
+
+          {usage.limitSeconds !== null ? (() => {
+            const pct = Math.min((usage.usedSeconds / usage.limitSeconds) * 100, 100);
+            const usedHrs = (usage.usedSeconds / 3600).toFixed(1);
+            const limitHrs = (usage.limitSeconds / 3600).toFixed(0);
+            const barColor = pct >= 100 ? "#f87171" : pct >= 80 ? "#fbbf24" : "#a855f7";
+            return (
+              <div>
+                <div className="flex justify-between text-xs mb-1.5" style={{ color: "#6b6b80" }}>
+                  <span>{usedHrs} hrs used</span>
+                  <span>{limitHrs} hrs limit · {pct.toFixed(0)}%</span>
+                </div>
+                <div className="w-full h-2 rounded-full overflow-hidden" style={{ background: "rgba(168,85,247,0.12)" }}>
+                  <div
+                    className="h-full rounded-full transition-all"
+                    style={{ width: `${pct}%`, background: barColor }}
+                  />
+                </div>
+              </div>
+            );
+          })() : (
+            <p className="text-sm font-semibold" style={{ color: "#4ade80" }}>Unlimited — Enterprise plan</p>
+          )}
+        </div>
+      )}
 
       {/* Call History */}
       <div

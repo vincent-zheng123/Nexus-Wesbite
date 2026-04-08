@@ -194,6 +194,7 @@ export default function NewClientPage() {
               <select name="plan" style={{ ...inputStyle }}>
                 <option value="STARTER">Starter</option>
                 <option value="GROWTH">Growth</option>
+                <option value="PRO">Pro</option>
                 <option value="ENTERPRISE">Enterprise</option>
               </select>
             </div>

@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import type { Prisma } from "@prisma/client";
 import twilio from "twilio";
+import { billingMonthStart, planLimitSeconds } from "@/lib/plan-limits";
+import { unlinkVapiPhoneWithFallback } from "@/lib/vapi-client";
 
 /**
  * POST /api/webhooks/vapi
@@ -55,9 +57,16 @@ export async function POST(req: Request) {
     include: { client: true },
   });
 
-  if (!config || !config.active) {
-    console.warn(`[vapi-webhook] No active client config for number: ${toNumber}`);
+  if (!config) {
+    console.warn(`[vapi-webhook] No client config for number: ${toNumber}`);
     return NextResponse.json({ received: true, warning: "No client config found" });
+  }
+
+  // If the client is plan-capped (active=false, not manually suspended), skip processing.
+  // The phone is already unlinked so this is a safety-net path only.
+  if (!config.active && !config.planCapOverride) {
+    console.warn(`[vapi-webhook] Client ${config.clientId} is plan-capped — skipping`);
+    return NextResponse.json({ received: true, warning: "Client plan cap active" });
   }
 
   const clientId = config.clientId;
@@ -155,6 +164,63 @@ export async function POST(req: Request) {
       timestamp: startedAt,
     },
   });
+
+  // 4b. Plan cap enforcement — check if this call pushed the client over their monthly hour limit.
+  //     Runs after the call log is written so usage includes the current call.
+  //     ENTERPRISE and planCapOverride clients are exempt.
+  if (config.client.plan !== "ENTERPRISE" && !config.planCapOverride) {
+    const limitSeconds = planLimitSeconds(config.client.plan);
+    if (isFinite(limitSeconds)) {
+      const monthStart = billingMonthStart();
+      const agg = await prisma.callLog.aggregate({
+        where: { clientId, createdAt: { gte: monthStart } },
+        _sum: { durationSeconds: true },
+      });
+      const usedSeconds = agg._sum.durationSeconds ?? 0;
+
+      if (usedSeconds >= limitSeconds) {
+        // Disable in DB
+        await prisma.clientConfig.update({
+          where: { clientId },
+          data: { active: false },
+        });
+
+        // Unlink Vapi phone (route to fallback so callers still reach a human)
+        let capError: string | null = null;
+        if (config.vapiPhoneNumberId) {
+          const fallback = config.client.emergencyPhone ?? null;
+          try {
+            if (fallback) {
+              await unlinkVapiPhoneWithFallback(config.vapiPhoneNumberId, fallback);
+            } else {
+              // No fallback number configured — just unlink
+              await unlinkVapiPhoneWithFallback(config.vapiPhoneNumberId, "");
+            }
+          } catch (err) {
+            capError = err instanceof Error ? err.message : String(err);
+            console.error("[vapi-webhook] Plan cap Vapi unlink failed:", capError);
+          }
+        } else {
+          capError = "vapiPhoneNumberId not set — manual Vapi unlink required";
+          console.warn(`[vapi-webhook] ${capError} for client ${clientId}`);
+        }
+
+        await prisma.automationRun.create({
+          data: {
+            workflowName: "plan-limit-enforcement",
+            clientId,
+            status: capError ? "completed_with_warnings" : "completed",
+            startedAt: new Date(),
+            completedAt: new Date(),
+            errorMessage: capError,
+          },
+        });
+
+        console.log(`[vapi-webhook] Plan cap reached for client ${clientId} — used ${usedSeconds}s / ${limitSeconds}s`);
+        // Do NOT return early — finish processing this call (SMS, n8n) before disabling
+      }
+    }
+  }
 
   // 5. Appointment records are created mid-call by the bookAppointment tool (status: CONFIRMED,
   //    with calendar_event_id). No duplicate creation here — just update appointmentType if set.

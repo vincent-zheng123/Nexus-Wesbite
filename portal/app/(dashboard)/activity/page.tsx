@@ -2,7 +2,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
-import { getEffectiveClientId } from "@/lib/getClientId";
+import { getEffectiveClientIdFromRequest } from "@/lib/getClientId";
 
 type TimelineEvent = {
   id: string;
@@ -33,7 +33,7 @@ export default async function ActivityPage() {
   if (!session) redirect("/login");
 
   const user = session.user;
-  const clientId = await getEffectiveClientId(user);
+  const clientId = await getEffectiveClientIdFromRequest(user);
   if (!clientId) redirect("/admin");
 
   const [callLogs, appointments, followups, leads, configRow] = await Promise.all([

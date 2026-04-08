@@ -246,6 +246,61 @@ export async function linkVapiPhoneToAssistant(
   }
 }
 
+// ─── Plan cap: unlink phone with fallback routing ────────────────────────────
+
+/**
+ * When a client hits their monthly hour cap:
+ * - Removes the assistant from the phone number (stops AI answering)
+ * - Sets a fallback destination so callers are forwarded to the business's
+ *   emergency/fallback phone instead of hitting dead air.
+ *
+ * If Vapi does not support fallbackDestination on phone-number PATCH, the
+ * request falls back to simply unlinking the assistant (assistantId: null).
+ */
+export async function unlinkVapiPhoneWithFallback(
+  phoneNumberId: string,
+  fallbackNumber: string
+): Promise<void> {
+  const body: Record<string, unknown> = {
+    assistantId: null,
+    fallbackDestination: {
+      type: "number",
+      number: fallbackNumber,
+      description: "Plan cap reached — forwarding to business fallback",
+    },
+  };
+
+  const res = await fetch(`${VAPI_BASE_URL}/phone-number/${phoneNumberId}`, {
+    method: "PATCH",
+    headers: vapiHeaders(),
+    body: JSON.stringify(body),
+  });
+
+  if (!res.ok) {
+    // Retry without fallbackDestination in case Vapi rejects that field
+    const retryRes = await fetch(`${VAPI_BASE_URL}/phone-number/${phoneNumberId}`, {
+      method: "PATCH",
+      headers: vapiHeaders(),
+      body: JSON.stringify({ assistantId: null }),
+    });
+    if (!retryRes.ok) {
+      const err = await retryRes.text().catch(() => retryRes.statusText);
+      throw new Error(`Vapi unlinkPhone failed (${retryRes.status}): ${err}`);
+    }
+  }
+}
+
+/**
+ * Re-links the Vapi phone number to its assistant.
+ * Used on monthly plan reset or overage approval.
+ */
+export async function relinkVapiPhone(
+  phoneNumberId: string,
+  assistantId: string
+): Promise<void> {
+  return linkVapiPhoneToAssistant(phoneNumberId, assistantId);
+}
+
 // ─── Delete assistant ─────────────────────────────────────────────────────────
 
 export async function deleteVapiAssistant(assistantId: string): Promise<void> {

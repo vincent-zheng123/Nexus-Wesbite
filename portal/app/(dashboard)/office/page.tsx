@@ -3,14 +3,14 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import VirtualOfficeClient from "@/components/dashboard/VirtualOfficeClient";
-import { getEffectiveClientId } from "@/lib/getClientId";
+import { getEffectiveClientIdFromRequest } from "@/lib/getClientId";
 
 export default async function OfficePage() {
   const session = await getServerSession(authOptions);
   if (!session) redirect("/login");
 
   const user = session.user;
-  const clientId = await getEffectiveClientId(user);
+  const clientId = await getEffectiveClientIdFromRequest(user);
   if (!clientId) redirect("/admin");
 
   const [callsTotal, appointmentsTotal, followupsTotal, config, recentCalls] = await Promise.all([

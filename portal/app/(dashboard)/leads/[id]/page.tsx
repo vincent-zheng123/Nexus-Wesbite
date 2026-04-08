@@ -3,7 +3,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect, notFound } from "next/navigation";
 import { getNicheDisplayFields } from "@/lib/niches";
-import { getEffectiveClientId } from "@/lib/getClientId";
+import { getEffectiveClientIdFromRequest } from "@/lib/getClientId";
 import type { Prisma } from "@prisma/client";
 import LeadStatusSelector from "@/components/dashboard/LeadStatusSelector";
 
@@ -31,7 +31,7 @@ const statusColor: Record<string, string> = {
 export default async function LeadDetailPage({ params }: { params: { id: string } }) {
   const session = await getServerSession(authOptions);
   if (!session) redirect("/login");
-  const clientId = await getEffectiveClientId(session.user);
+  const clientId = await getEffectiveClientIdFromRequest(session.user);
   if (!clientId) redirect("/admin");
 
   const lead = await prisma.lead.findUnique({ where: { id: params.id } });

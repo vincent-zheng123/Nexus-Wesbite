@@ -3,7 +3,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import AgentStatusCard from "@/components/dashboard/AgentStatusCard";
-import { getEffectiveClientId } from "@/lib/getClientId";
+import { getEffectiveClientIdFromRequest } from "@/lib/getClientId";
 import { GlowingEffect } from "@/components/ui/glowing-effect";
 
 async function getStats(clientId: string) {
@@ -58,7 +58,7 @@ export default async function DashboardPage() {
   if (!session) redirect("/login");
 
   const user = session.user;
-  const clientId = await getEffectiveClientId(user);
+  const clientId = await getEffectiveClientIdFromRequest(user);
   if (!clientId) redirect("/admin");
 
   const [stats, configRow] = await Promise.all([
