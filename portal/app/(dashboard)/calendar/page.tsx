@@ -72,6 +72,28 @@ export default function CalendarPage() {
   const [connected, setConnected] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [confirmDisconnect, setConfirmDisconnect] = useState(false);
+  const [disconnecting, setDisconnecting] = useState(false);
+  const [toast, setToast] = useState<{ type: "success" | "error"; msg: string } | null>(null);
+
+  async function handleDisconnect() {
+    setDisconnecting(true);
+    setConfirmDisconnect(false);
+    try {
+      const res = await fetch("/api/integrations/google-calendar/disconnect", { method: "POST" });
+      if (res.ok) {
+        setConnected(false);
+        setEvents([]);
+        setToast({ type: "success", msg: "Google Calendar disconnected." });
+      } else {
+        setToast({ type: "error", msg: "Failed to disconnect. Please try again." });
+      }
+    } catch {
+      setToast({ type: "error", msg: "Failed to disconnect. Please try again." });
+    }
+    setDisconnecting(false);
+    setTimeout(() => setToast(null), 4000);
+  }
 
   useEffect(() => {
     fetch("/api/integrations/google-calendar/events")
@@ -92,23 +114,84 @@ export default function CalendarPage() {
 
   return (
     <div className="p-4 md:p-8 max-w-4xl mx-auto">
+      {/* Toast */}
+      {toast && (
+        <div
+          className="fixed top-6 right-6 z-50 px-5 py-3 rounded-xl text-sm font-semibold shadow-lg"
+          style={{
+            background: toast.type === "success" ? "rgba(74,222,128,0.15)" : "rgba(239,68,68,0.15)",
+            color: toast.type === "success" ? "#4ade80" : "#f87171",
+            border: `1px solid ${toast.type === "success" ? "rgba(74,222,128,0.3)" : "rgba(239,68,68,0.3)"}`,
+          }}
+        >
+          {toast.msg}
+        </div>
+      )}
+
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-start justify-between mb-8 gap-4">
         <div>
-          <h1
-            className="text-2xl font-bold"
-            style={{ fontFamily: "var(--font-space-grotesk)", color: "#f3f0ff" }}
-          >
+          <h1 className="text-2xl font-bold" style={{ fontFamily: "var(--font-space-grotesk)", color: "#f3f0ff" }}>
             Calendar
           </h1>
           <p className="text-sm mt-1" style={{ color: "#a78bfa" }}>
             Upcoming appointments from your Google Calendar
           </p>
         </div>
-        {connected && (
-          <div className="flex items-center gap-2">
-            <span className="inline-block w-2 h-2 rounded-full" style={{ background: "#4ade80" }} />
-            <span className="text-xs font-medium" style={{ color: "#4ade80" }}>Google Calendar Connected</span>
+
+        {connected !== null && (
+          <div className="flex flex-col items-end gap-2 flex-shrink-0">
+            <div className="flex items-center gap-2">
+              <span className="inline-block w-2 h-2 rounded-full" style={{ background: connected ? "#4ade80" : "#6b6b80" }} />
+              <span className="text-xs font-medium" style={{ color: connected ? "#4ade80" : "#6b6b80" }}>
+                {connected ? "Google Calendar Connected" : "Not Connected"}
+              </span>
+            </div>
+
+            {connected && !confirmDisconnect && (
+              <button
+                onClick={() => setConfirmDisconnect(true)}
+                className="text-xs font-semibold px-3 py-1.5 rounded-lg"
+                style={{ background: "rgba(239,68,68,0.08)", color: "#f87171", border: "1px solid rgba(239,68,68,0.2)", cursor: "pointer" }}
+              >
+                Disconnect
+              </button>
+            )}
+
+            {confirmDisconnect && (
+              <div className="rounded-xl p-3 flex flex-col gap-2 max-w-xs" style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.25)" }}>
+                <p className="text-xs" style={{ color: "#f87171" }}>
+                  Disconnect Google Calendar? Auto-booking will stop until reconnected.
+                </p>
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleDisconnect}
+                    disabled={disconnecting}
+                    className="flex-1 text-xs font-semibold px-3 py-1.5 rounded-lg"
+                    style={{ background: "rgba(239,68,68,0.2)", color: "#f87171", border: "1px solid rgba(239,68,68,0.3)", cursor: disconnecting ? "not-allowed" : "pointer" }}
+                  >
+                    {disconnecting ? "Disconnecting…" : "Yes, disconnect"}
+                  </button>
+                  <button
+                    onClick={() => setConfirmDisconnect(false)}
+                    className="flex-1 text-xs font-semibold px-3 py-1.5 rounded-lg"
+                    style={{ background: "rgba(168,85,247,0.1)", color: "#a78bfa", border: "1px solid rgba(168,85,247,0.2)", cursor: "pointer" }}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {!connected && (
+              <a
+                href="/api/integrations/google-calendar/connect"
+                className="text-xs font-semibold px-3 py-1.5 rounded-lg"
+                style={{ background: "rgba(96,165,250,0.15)", color: "#60a5fa", border: "1px solid rgba(96,165,250,0.25)" }}
+              >
+                Connect Calendar
+              </a>
+            )}
           </div>
         )}
       </div>

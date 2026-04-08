@@ -86,7 +86,7 @@ export default async function DashboardPage() {
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-2xl font-bold" style={{ fontFamily: "var(--font-space-grotesk)", color: "#f3f0ff" }}>
-          {greeting}, {displayName} 👋
+          Overview
         </h1>
         <p className="text-sm mt-1" style={{ color: "#a78bfa" }}>
           {new Date().toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
