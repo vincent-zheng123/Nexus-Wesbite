@@ -5,10 +5,9 @@ import { useRouter } from "next/navigation";
 interface Props {
   clients: { id: string; businessName: string }[];
   currentClientId: string;
-  currentClientName: string;
 }
 
-export default function AdminPreviewBanner({ clients, currentClientId, currentClientName }: Props) {
+export default function AdminPreviewBanner({ clients, currentClientId }: Props) {
   const router = useRouter();
 
   function handleSwitch(e: React.ChangeEvent<HTMLSelectElement>) {

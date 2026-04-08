@@ -44,7 +44,6 @@ export default async function DashboardLayout({
           <AdminPreviewBanner
             clients={allClients}
             currentClientId={effectiveClientId}
-            currentClientName={currentClientName}
           />
         )}
         <div className="flex-1">{children}</div>
