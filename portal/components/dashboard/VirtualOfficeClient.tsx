@@ -79,6 +79,7 @@ export default function VirtualOfficeClient({
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const startRef = useRef<number | null>(null);
   const prevStateRef = useRef<AgentState>("idle");
+  const hasBeenActiveRef = useRef(false);
 
   // Timer for active states
   useEffect(() => {
@@ -86,8 +87,15 @@ export default function VirtualOfficeClient({
       if (timerRef.current) clearInterval(timerRef.current);
       setTimer("—");
       startRef.current = null;
-      sessionStorage.removeItem("vo_call_start");
+      // Only clear the stored start time when genuinely transitioning from active → idle.
+      // On initial mount agentState is "idle" before polling runs, so we must not wipe
+      // the sessionStorage start time that was saved during a previous active session.
+      if (hasBeenActiveRef.current) {
+        sessionStorage.removeItem("vo_call_start");
+        hasBeenActiveRef.current = false;
+      }
     } else {
+      hasBeenActiveRef.current = true;
       // Restore persisted start time across tab navigation, or set a new one
       const stored = sessionStorage.getItem("vo_call_start");
       const start = stored ? parseInt(stored, 10) : Date.now();
