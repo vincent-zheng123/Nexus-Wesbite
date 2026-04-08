@@ -8,17 +8,6 @@ import { getEffectiveClientIdFromRequest } from "@/lib/getClientId";
 import { LeadStatusBadge } from "./LeadStatusBadge";
 
 
-const planColor: Record<string, string> = {
-  STARTER: "#a78bfa",
-  GROWTH: "#4ade80",
-  ENTERPRISE: "#fbbf24",
-};
-
-const clientStatusColor: Record<string, string> = {
-  ACTIVE: "#4ade80",
-  INACTIVE: "#94a3b8",
-  SUSPENDED: "#f87171",
-};
 
 export default async function LeadsPage() {
   const session = await getServerSession(authOptions);
@@ -26,99 +15,7 @@ export default async function LeadsPage() {
 
   const user = session.user;
 
-  // ── Admin view: show all clients on the platform ───────────────────────────
-  if (user.role === "ADMIN") {
-    const clients = await prisma.client.findMany({
-      orderBy: { createdAt: "desc" },
-    });
-
-    const adminHeaders = ["Business", "Contact", "Phone", "Industry", "Plan", "Status", "Since"];
-
-    return (
-      <div className="p-8 flex flex-col h-full">
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold" style={{ fontFamily: "var(--font-space-grotesk)", color: "#f3f0ff" }}>Clients</h1>
-          <p className="text-sm mt-1" style={{ color: "#a78bfa" }}>All businesses on your platform</p>
-        </div>
-
-        <div className="grid grid-cols-3 gap-4 mb-6">
-          {[
-            { label: "Total Clients", value: clients.length, color: "#a855f7" },
-            { label: "Active", value: clients.filter((c) => c.status === "ACTIVE").length, color: "#4ade80" },
-            { label: "Growth+", value: clients.filter((c) => c.plan === "GROWTH" || c.plan === "ENTERPRISE").length, color: "#fbbf24" },
-          ].map((s) => (
-            <div key={s.label} className="rounded-2xl border p-4" style={{ background: "#0d0a1a", borderColor: "rgba(168,85,247,0.18)" }}>
-              <p className="text-2xl font-black mb-0.5" style={{ fontFamily: "var(--font-orbitron)", color: s.color }}>{s.value}</p>
-              <p className="text-xs font-medium uppercase tracking-wider" style={{ color: "#6b6b80" }}>{s.label}</p>
-            </div>
-          ))}
-        </div>
-
-        <div className="flex-1 rounded-2xl border overflow-auto min-h-0 flex flex-col" style={{ background: "#0d0a1a", borderColor: "rgba(168,85,247,0.18)" }}>
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b" style={{ borderColor: "rgba(168,85,247,0.15)" }}>
-                {adminHeaders.map((h) => (
-                  <th key={h} className="text-left px-5 py-3.5 text-xs font-medium tracking-wide uppercase whitespace-nowrap" style={{ color: "#6b6b80" }}>
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            {clients.length > 0 && (
-              <tbody>
-                {clients.map((c) => {
-                  const planC = planColor[c.plan] ?? "#a78bfa";
-                  const statusC = clientStatusColor[c.status] ?? "#94a3b8";
-                  return (
-                    <tr key={c.id} className="border-b last:border-0" style={{ borderColor: "rgba(168,85,247,0.08)" }}>
-                      <td className="px-5 py-3.5">
-                        <a href={`/admin/clients/${c.id}`}>
-                          <p className="font-medium hover:underline" style={{ color: "#f3f0ff" }}>{c.businessName}</p>
-                        </a>
-                        <p className="text-xs" style={{ color: "#6b6b80" }}>{c.email}</p>
-                      </td>
-                      <td className="px-5 py-3.5 text-xs" style={{ color: "#a78bfa" }}>{c.contactName}</td>
-                      <td className="px-5 py-3.5 text-xs whitespace-nowrap" style={{ color: "#6b6b80" }}>{c.phone ?? "—"}</td>
-                      <td className="px-5 py-3.5 text-xs" style={{ color: "#6b6b80" }}>
-                        {c.industry ? c.industry.charAt(0) + c.industry.slice(1).toLowerCase().replace(/_/g, " ") : "—"}
-                      </td>
-                      <td className="px-5 py-3.5">
-                        <span className="text-xs px-2.5 py-1 rounded-full font-medium whitespace-nowrap" style={{ background: `${planC}18`, color: planC }}>
-                          {c.plan.charAt(0) + c.plan.slice(1).toLowerCase()}
-                        </span>
-                      </td>
-                      <td className="px-5 py-3.5">
-                        <span className="text-xs px-2.5 py-1 rounded-full font-medium whitespace-nowrap" style={{ background: `${statusC}18`, color: statusC }}>
-                          {c.status.charAt(0) + c.status.slice(1).toLowerCase()}
-                        </span>
-                      </td>
-                      <td className="px-5 py-3.5 text-xs whitespace-nowrap" style={{ color: "#6b6b80" }}>
-                        {c.createdAt.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            )}
-          </table>
-          {clients.length === 0 && (
-            <div className="flex-1 flex flex-col items-center justify-center">
-              <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-4" style={{ background: "rgba(168,85,247,0.1)", border: "1px solid rgba(168,85,247,0.2)" }}>
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#a855f7" strokeWidth="1.8" strokeLinecap="round">
-                  <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>
-                </svg>
-              </div>
-              <p className="text-sm font-semibold mb-1" style={{ color: "#f3f0ff" }}>No clients yet</p>
-              <p className="text-xs" style={{ color: "#6b6b80" }}>Add your first client from the admin panel.</p>
-            </div>
-          )}
-        </div>
-      </div>
-    );
-  }
-
-  // ── Client view: show leads captured by their AI receptionist ──────────────
+  // Admin in preview mode falls through to the client view below
   const clientId = await getEffectiveClientIdFromRequest(user);
   if (!clientId) redirect("/admin");
 

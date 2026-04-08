@@ -38,7 +38,11 @@ export default async function DashboardLayout({
 
   return (
     <div className="flex flex-col md:flex-row h-screen overflow-hidden" style={{ background: "#06040f" }}>
-      <Sidebar session={session} isPreviewMode={isAdmin} />
+      <Sidebar
+        session={session}
+        isPreviewMode={isAdmin}
+        previewClientName={isAdmin ? (allClients.find((c) => c.id === effectiveClientId)?.businessName ?? null) : null}
+      />
       <main className="flex-1 min-w-0 overflow-x-hidden overflow-y-auto h-full flex flex-col">
         {isAdmin && effectiveClientId && allClients.length > 0 && (
           <AdminPreviewBanner

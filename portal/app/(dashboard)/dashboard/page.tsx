@@ -61,11 +61,15 @@ export default async function DashboardPage() {
   const clientId = await getEffectiveClientIdFromRequest(user);
   if (!clientId) redirect("/admin");
 
-  const [stats, configRow] = await Promise.all([
+  const [stats, configRow, clientRow] = await Promise.all([
     getStats(clientId),
     prisma.clientConfig.findUnique({ where: { clientId }, select: { timezone: true } }),
+    prisma.client.findUnique({ where: { id: clientId }, select: { businessName: true } }),
   ]);
   const tz = configRow?.timezone ?? "America/New_York";
+
+  // Use client business name in greeting — avoids showing "admin" when admin is previewing
+  const displayName = clientRow?.businessName ?? user.name ?? "there";
 
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
@@ -82,7 +86,7 @@ export default async function DashboardPage() {
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-2xl font-bold" style={{ fontFamily: "var(--font-space-grotesk)", color: "#f3f0ff" }}>
-          {greeting}, {user.name} 👋
+          {greeting}, {displayName} 👋
         </h1>
         <p className="text-sm mt-1" style={{ color: "#a78bfa" }}>
           {new Date().toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}

@@ -88,12 +88,14 @@ function SidebarInner({
   initials,
   pathname,
   isPreviewMode,
+  previewClientName,
   onLinkClick,
 }: {
   user: { name?: string | null; role?: string };
   initials: string;
   pathname: string;
   isPreviewMode?: boolean;
+  previewClientName?: string | null;
   onLinkClick?: () => void;
 }) {
   return (
@@ -128,16 +130,16 @@ function SidebarInner({
         <div className="flex items-center gap-3">
           <div
             className="w-9 h-9 rounded-lg flex items-center justify-center text-xs font-bold flex-shrink-0"
-            style={{ background: "linear-gradient(135deg, #7c3aed, #a855f7)", color: "#fff" }}
+            style={{ background: isPreviewMode && previewClientName ? "linear-gradient(135deg, #b45309, #d97706)" : "linear-gradient(135deg, #7c3aed, #a855f7)", color: "#fff" }}
           >
-            {initials}
+            {isPreviewMode && previewClientName ? previewClientName.charAt(0).toUpperCase() : initials}
           </div>
           <div className="min-w-0">
             <p className="text-sm font-semibold truncate" style={{ color: "#f3f0ff", fontFamily: "var(--font-space-grotesk)" }}>
-              {user.name}
+              {isPreviewMode && previewClientName ? previewClientName : user.name}
             </p>
-            <p className="text-xs truncate" style={{ color: "#a78bfa" }}>
-              {user.role === "ADMIN" ? "Administrator" : "Client"}
+            <p className="text-xs truncate" style={{ color: isPreviewMode && previewClientName ? "#fbbf24" : "#a78bfa" }}>
+              {isPreviewMode && previewClientName ? "Preview Mode" : user.role === "ADMIN" ? "Administrator" : "Client"}
             </p>
           </div>
         </div>
@@ -206,7 +208,7 @@ function SidebarInner({
   );
 }
 
-export default function Sidebar({ session, isPreviewMode }: { session: Session; isPreviewMode?: boolean }) {
+export default function Sidebar({ session, isPreviewMode, previewClientName }: { session: Session; isPreviewMode?: boolean; previewClientName?: string | null }) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
   const user = session.user as { name?: string | null; role?: string };
@@ -291,6 +293,7 @@ export default function Sidebar({ session, isPreviewMode }: { session: Session; 
               initials={initials}
               pathname={pathname}
               isPreviewMode={isPreviewMode}
+              previewClientName={previewClientName}
               onLinkClick={() => setMobileOpen(false)}
             />
           </aside>
@@ -302,7 +305,7 @@ export default function Sidebar({ session, isPreviewMode }: { session: Session; 
         className="hidden md:flex w-64 flex-shrink-0 flex-col sticky top-0 h-screen border-r"
         style={{ background: "#0d0a1a", borderColor: "rgba(168,85,247,0.15)" }}
       >
-        <SidebarInner user={user} initials={initials} pathname={pathname} isPreviewMode={isPreviewMode} />
+        <SidebarInner user={user} initials={initials} pathname={pathname} isPreviewMode={isPreviewMode} previewClientName={previewClientName} />
       </aside>
     </>
   );
