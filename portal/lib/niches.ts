@@ -847,10 +847,19 @@ function buildServiceDetail(
   }
 }
 
+export type BookingEventType = "booked" | "rescheduled" | "cancelled";
+
+const EVENT_HEADER: Record<BookingEventType, string> = {
+  booked: "New booking at",
+  rescheduled: "Appointment rescheduled at",
+  cancelled: "Appointment cancelled at",
+};
+
 /**
- * Builds the SMS body sent to the business owner when an appointment is booked.
+ * Builds the SMS body sent to the business owner for booking events.
  */
 export function buildOwnerNotificationSms(params: {
+  eventType: BookingEventType;
   businessName: string;
   callerName: string | null;
   callerPhone: string;
@@ -859,7 +868,7 @@ export function buildOwnerNotificationSms(params: {
   industry: string | null;
   structured: Record<string, unknown>;
 }): string {
-  const { businessName, callerName, callerPhone, appointmentTime, timezone, industry, structured } = params;
+  const { eventType, businessName, callerName, callerPhone, appointmentTime, timezone, industry, structured } = params;
 
   const caller = callerName ? `${callerName} (${callerPhone})` : callerPhone;
 
@@ -879,10 +888,10 @@ export function buildOwnerNotificationSms(params: {
     }
   }
 
-  const serviceDetail = buildServiceDetail(industry, structured);
+  const serviceDetail = eventType !== "cancelled" ? buildServiceDetail(industry, structured) : null;
 
   return [
-    `New booking at ${businessName}`,
+    `${EVENT_HEADER[eventType]} ${businessName}`,
     `Caller: ${caller}`,
     ...(serviceDetail ? [`Service: ${serviceDetail}`] : []),
     ...(whenLine ? [`When: ${whenLine}`] : []),

@@ -4,7 +4,7 @@ import type { Prisma } from "@prisma/client";
 import twilio from "twilio";
 import { billingMonthStart, planLimitSeconds } from "@/lib/plan-limits";
 import { unlinkVapiPhoneWithFallback } from "@/lib/vapi-client";
-import { buildOwnerNotificationSms } from "@/lib/niches";
+import { buildOwnerNotificationSms, type BookingEventType } from "@/lib/niches";
 
 /**
  * POST /api/webhooks/vapi
@@ -280,12 +280,19 @@ export async function POST(req: Request) {
     });
   }
 
-  // 5b. Owner notification SMS — sent to the business owner's contact phone when a booking is confirmed.
-  if (outcome === "APPOINTMENT_BOOKED" && config.client.phone) {
+  // 5b. Owner notification SMS — sent for bookings, reschedules, and cancellations.
+  const ownerEventType: BookingEventType | null =
+    rawOutcome === "APPOINTMENT_BOOKED" ? "booked" :
+    rawOutcome === "APPOINTMENT_CHANGED" ? "rescheduled" :
+    rawOutcome === "APPOINTMENT_CANCELLED" ? "cancelled" :
+    null;
+
+  if (ownerEventType && config.client.phone) {
     const accountSid = process.env.TWILIO_ACCOUNT_SID;
     const authToken = process.env.TWILIO_AUTH_TOKEN;
     if (accountSid && authToken && config.twilioFromNumber) {
       const notificationBody = buildOwnerNotificationSms({
+        eventType: ownerEventType,
         businessName: config.client.businessName,
         callerName,
         callerPhone: fromNumber,
