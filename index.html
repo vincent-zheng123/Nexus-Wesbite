@@ -48,7 +48,6 @@
       background:rgba(6,4,15,0.75);
       backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
       border-bottom:1px solid var(--border);
-      transition:clip-path 0.25s ease, opacity 0.2s ease;
       clip-path:inset(0 0 0 0);
     }
     .brand {
@@ -2390,10 +2389,12 @@
       if (window.innerWidth > 580) { nav.style.clipPath = ''; nav.style.opacity = ''; return; }
       var y = window.scrollY;
       if (y > lastY && y > 1) {
+        nav.style.transition = 'none';
         nav.style.clipPath = 'inset(100% 0 0 0)';
         nav.style.opacity = '0';
         drawer.classList.remove('open');
       } else if (y < 60) {
+        nav.style.transition = 'clip-path 0.22s ease, opacity 0.22s ease';
         nav.style.clipPath = 'inset(0 0 0 0)';
         nav.style.opacity = '1';
       }
