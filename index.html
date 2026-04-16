@@ -48,8 +48,8 @@
       background:rgba(6,4,15,0.75);
       backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
       border-bottom:1px solid var(--border);
-      transition:transform 0.25s ease, opacity 0.25s ease;
-      transform-origin:top center;
+      transition:clip-path 0.25s ease, opacity 0.2s ease;
+      clip-path:inset(0 0 0 0);
     }
     .brand {
       display:flex; align-items:center; gap:12px;
@@ -2387,14 +2387,14 @@
     var drawer = document.getElementById('nav-mobile-drawer');
     var lastY = 0;
     window.addEventListener('scroll', function() {
-      if (window.innerWidth > 580) { nav.style.transform = ''; nav.style.opacity = ''; return; }
+      if (window.innerWidth > 580) { nav.style.clipPath = ''; nav.style.opacity = ''; return; }
       var y = window.scrollY;
       if (y > lastY && y > 1) {
-        nav.style.transform = 'scaleY(0)';
+        nav.style.clipPath = 'inset(100% 0 0 0)';
         nav.style.opacity = '0';
         drawer.classList.remove('open');
       } else if (y < 60) {
-        nav.style.transform = 'scaleY(1)';
+        nav.style.clipPath = 'inset(0 0 0 0)';
         nav.style.opacity = '1';
       }
       lastY = y;
