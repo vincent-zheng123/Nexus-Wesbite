@@ -811,8 +811,12 @@
     /* ── Hamburger + mobile drawer ── */
     .nav-hamburger {
       display:none; flex-direction:column; justify-content:center; gap:5px;
-      width:36px; height:36px; background:none; border:none; cursor:pointer; padding:4px;
+      width:40px; height:40px; padding:10px;
+      background:rgba(124,58,237,0.1); border:1px solid rgba(168,85,247,0.25);
+      border-radius:10px; cursor:pointer;
+      transition:background 0.2s, border-color 0.2s;
     }
+    .nav-hamburger:hover { background:rgba(124,58,237,0.2); border-color:rgba(168,85,247,0.5); }
     .nav-hamburger span {
       display:block; height:2px; border-radius:2px;
       background:var(--text); transition:opacity 0.2s, transform 0.2s;
@@ -842,13 +846,22 @@
       .hero-tag { margin-top: 16px; }
       #hero h1 { font-size: clamp(1.85rem, 7.5vw, 2.5rem); white-space: nowrap; }
       nav {
-        padding:11px 16px;
+        padding:10px 16px;
         background:rgba(6,4,15,0.97);
         backdrop-filter:none; -webkit-backdrop-filter:none;
       }
-      .brand-text { font-size:1.1rem; }
+      .brand {
+        padding:6px 14px 6px 8px;
+        background:rgba(124,58,237,0.1);
+        border:1px solid rgba(168,85,247,0.25);
+        border-radius:100px;
+      }
+      .brand-text { font-size:1.05rem; }
       .nav-desktop-ctas { display:none !important; }
       .nav-hamburger { display:flex; }
+      /* Kill blur animations on mobile — root cause of background glitch */
+      .hero-orb { filter:none !important; animation:none !important; opacity:0.5; }
+      #neural-canvas { display:none; }
     }
 
     /* ── How It Works ── */
@@ -2366,7 +2379,7 @@
     window.addEventListener('scroll', function() {
       if (window.innerWidth > 580) { nav.style.transform = ''; return; }
       var y = window.scrollY;
-      if (y > lastY && y > 20) {
+      if (y > lastY && y > 1) {
         nav.style.transform = 'translateY(-100%)';
         drawer.classList.remove('open');
       } else {
